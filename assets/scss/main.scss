@@ -1,8 +1,33 @@
-html {
-  background-color: black !important;
-  font-size: 50px;
+// Import Bulma's core
+@import "~bulma/sass/utilities/_all";
+@import url("https://fonts.googleapis.com/css?family=IBM+Plex+Mono|Montserrat&display=swap");
+
+// Set your colors
+$primary: #5c58db;
+$secondary: #6957ce;
+$info: #5994ce;
+$warning: #3a4e93;
+$primary-invert: findColorInvert($primary);
+
+$family-primary: "Montserrat", sans-serif;
+
+$family-code: "IBM Plex Mono", monospace;
+
+$body-background-color: #f9f9f9cc;
+
+.page-heading {
+  font-size: 2em;
 }
 
-body {
-  border: 40px solid tomato;
+.page-subtitle {
+  font-size: 1.2em;
+  font-family: $family-code;
 }
+
+.spacer {
+  margin-bottom: 15px;
+}
+
+// Import Bulma and Buefy styles
+@import "~bulma";
+@import "~buefy/src/scss/buefy";

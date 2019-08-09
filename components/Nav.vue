@@ -21,3 +21,10 @@
     </template>
   </b-navbar>
 </template>
+
+<style>
+.navbar {
+  background-color: transparent;
+  height: 90px;
+}
+</style>
