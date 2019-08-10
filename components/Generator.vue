@@ -30,6 +30,7 @@
                       </option>
                     </b-select>
                   </b-field>
+
                   <b-field label="Words">
                     <b-select v-model="words">
                       <option title="English" value="12">
@@ -49,40 +50,67 @@
                       </option>
                     </b-select>
                   </b-field>
-                  <b-field label="Enthropy">
+                  <b-field label="Custom Enthropy Input">
                     <b-field>
-                       <b-input v-model="enthropy" placeholder='move your mouse to add random enthropy' name="subject" expanded></b-input>
-                       <p class="control">
-                <button @click="generateEnthropy" :class="isGeneratingEnthropy ? 'button is-black is-active' : 'button is-info'">Click to Gene</button>
-            </p>
-                </b-field>
-                  </b-field>
+                      <b-input v-model="enthropy" placeholder="move your mouse to add random enthropy" name="subject" :maxlength="enthropyLength" expanded />
 
+                      <b-select v-model="enthropyLength">
+                        <option title="100" value="100">
+                          100
+                        </option>
+                        <option title="80" value="80">
+                          80
+                        </option>
+                      </b-select>
+                      <p class="control">
+                        <button :class="isGeneratingEnthropy ? 'button is-primary is-active' : 'button is-info'" @click="generateEnthropy">
+                          Generate Enthropy
+                        </button>
+                      </p>
+                    </b-field>
+                  </b-field>
+                  <b-field label="Mouse Coordinates">
+                    <button class="button is-info">
+                      {{ lastX }}:{{ lastY }}
+                    </button>
+                  </b-field>
                 </b-field>
                 <b-field grouped>
-                   <p class="control">
-                    <b-button type="is-primary is-large is-outlined">
-                      Generate
+                  <div class="field spacer">
+                    <b-taglist attached>
+                      <b-tag size="is-medium" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
+                        {{ enthropy }}
+                      </b-tag>
+                      <b-tag size="is-medium" type="is-dark">
+                        {{ enthropy.length }}/{{ enthropyLength }}
+                      </b-tag>
+                    </b-taglist>
+                  </div>
+                </b-field>
+                <b-field grouped>
+                  <p class="control spacer">
+                    <b-button type="is-primary is-medium is-outlined" @click="generateMnemonic">
+                      Generate Mnemonic
                     </b-button>
                   </p>
+                </b-field>
+                <b-field>
+                  <b-field :label="&quot;Mnemonic (&quot; + language + &quot;)&quot;">
+                    <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
+                  </b-field>
                 </b-field>
               </div>
             </b-tab-item>
             <b-tab-item label="Use Existing">
               <div class="has-text-left">
                 <b-field label="Mnemonic">
-                  <b-input v-model="mnemonic" maxlength="200" type="textarea" />
+                  <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
                 </b-field>
               </div>
             </b-tab-item>
           </b-tabs>
         </div>
-        <div class="column">
-          {{ words }}
-          {{ language }}
-          {{ mnemonic }}
-          {{ enthropy }}
-        </div>
+        <div class="column" />
       </div>
     </div>
   </div>
@@ -100,8 +128,12 @@ export default {
       isGeneratingEnthropy: false,
       language: 'en',
       words: 15,
-      mnemonic: 'foo bar too',
-      enthropy: ''
+      mnemonic: '',
+      enthropy: (Math.random() * 100).toString(),
+      enthropyLength: 100,
+      lastX: 0,
+      lastY: 0,
+      lastEnthropyTick: null
     }
   },
   created () {
@@ -120,9 +152,44 @@ export default {
     checkOnlineStatus () {
       this.isOnline = navigator.onLine
     },
+    generateMnemonic () {
+      this.mnemonic = 'this should be some kind of generated mnemonic somewhere in the future of with ' + this.words + ' words'
+    },
     generateEnthropy (event) {
+      window.clearInterval(this.intervalEvent)
       this.isGeneratingEnthropy = !this.isGeneratingEnthropy
-      this.enthropy = event.clientX
+      if (this.isGeneratingEnthropy) {
+        this.enthropy = ''
+        this.lastEnthropyTick = null
+        window.addEventListener('mousemove', this.addEnthropy)
+      } else {
+        window.removeEventListener('mousemove', this.addEnthropy)
+        window.clearInterval(this.intervalEvent)
+      }
+    },
+    addEnthropy (event) {
+      const ts = new Date().getTime()
+      if (!this.lastEnthropyTick) {
+        this.lastEnthropyTick = ts
+      }
+      if (ts - this.lastEnthropyTick > 100) {
+        const x = event.clientX
+        const y = event.clientY
+        if (x !== this.lastX && y !== this.lastY) {
+          this.lastX = x
+          this.lastY = y
+          // TODO: Fix wonderfull off by some error :D
+          const z = (Math.random(x) * Math.random(y) * 100).toString()
+          if (this.enthropy.length <= this.enthropyLength) {
+            this.enthropy += Math.round(z / Math.random(100))
+            this.lastEnthropyTick = ts
+          } else {
+            window.removeEventListener('mousemove', this.addEnthropy)
+            this.isGeneratingEnthropy = false
+            this.lastEnthropyTick = null
+          }
+        }
+      }
     }
   }
 }
