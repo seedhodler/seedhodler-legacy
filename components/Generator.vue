@@ -59,6 +59,9 @@
                         <button :class="isGeneratingEnthropy ? 'button is-primary is-outlined is-active' : 'button is-info is-outlined'" @click="generateEnthropy">
                           {{ isGeneratingEnthropy ? 'Stop' : 'Generate' }}
                         </button>
+                        <button class="button is-outlined is-info " @click="toggleShowEnthropyInput">
+                          Show
+                        </button>
                       </p>
                     </b-field>
                   </b-field>
@@ -76,7 +79,7 @@
                   </div>
                 </b-field>
                 <b-field>
-                  <b-field>
+                  <b-field v-if='showEnthropyInput'>
                     <b-field label="Enthropy">
                       <b-input v-model="enthropy" class="enthropy-display" type="textarea" expanded readonly />
                     </b-field>
@@ -139,7 +142,8 @@ export default {
       enthropyLength: 100,
       lastX: 0,
       lastY: 0,
-      lastEnthropyTick: null
+      lastEnthropyTick: null,
+      showEnthropyInput: false
     }
   },
   created () {
@@ -155,6 +159,9 @@ export default {
     }
   },
   methods: {
+    toggleShowEnthropyInput () {
+      this.showEnthropyInput = !this.showEnthropyInput
+    },
     checkOnlineStatus () {
       this.isOnline = navigator.onLine
     },
