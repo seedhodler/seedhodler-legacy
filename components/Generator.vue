@@ -22,11 +22,29 @@
                 <b-field grouped>
                   <b-field label="Language">
                     <b-select v-model="language">
-                      <option title="English" value="en">
+                      <option title="English" value="english">
                         English
                       </option>
-                      <option title="French" value="fr">
+                      <option title="French" value="french">
                         Français
+                      </option>
+                      <option title="Spanish" value="spanish">
+                        Spanish
+                      </option>
+                      <option title="Italian" value="italian">
+                        Italian
+                      </option>
+                      <option title="Japanese" value="japanese">
+                        Japanese
+                      </option>
+                      <option title="Korean" value="korean">
+                        Korean
+                      </option>
+                      <option title="Chinese Simplified" value="chinese_simplified">
+                        Chinese (Simplified)
+                      </option>
+                      <option title="Chinese Traditional" value="chinese_traditional">
+                        Chinese (Traditional)
                       </option>
                     </b-select>
                   </b-field>
@@ -110,10 +128,9 @@
               </b-field>
             </b-field>
           </div>
-
+        </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
@@ -136,7 +153,7 @@ export default {
     return {
       isOnline: true,
       isGeneratingEnthropy: false,
-      language: 'en',
+      language: 'english',
       words: 15,
       mnemonic: '',
       enthropy: '',
@@ -176,6 +193,7 @@ export default {
     },
     generateMnemonic () {
       if (this.enthropyHash) {
+        bip39.setDefaultWordlist(this.language)
         this.mnemonic = bip39.entropyToMnemonic(this.enthropyHash)
       }
     },
