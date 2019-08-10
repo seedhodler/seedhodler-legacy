@@ -99,7 +99,7 @@
             </b-tab-item>
             <b-tab-item label="Use Existing" />
           </b-tabs>
-          <div class="has-text-left">
+          <div class="column has-text-left">
             <b-field>
               <b-field
                 :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
@@ -110,8 +110,7 @@
               </b-field>
             </b-field>
           </div>
-        </div>
-        <div class="column" />
+
       </div>
     </div>
   </div>
