@@ -72,10 +72,10 @@
                 <b-field grouped>
                   <div class="field spacer">
                     <b-taglist v-if="enthropyHash" attached>
-                      <b-tag size="is-medium" type="is-dark">
+                      <b-tag size="is-small" type="is-dark">
                         Enthropy Input Hash
                       </b-tag>
-                      <b-tag size="is-medium" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
+                      <b-tag size="is-small" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
                         {{ enthropyHash }}
                       </b-tag>
                     </b-taglist>
