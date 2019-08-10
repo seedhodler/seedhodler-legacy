@@ -2,20 +2,20 @@
   <div class="card">
     <div class="card-content">
       <div class="content">
-        <div class="column is-full">
+        <div v-if="isOnline" class="column is-full">
           <b-notification
-            :type="isOnline ? 'is-warning' : 'is-success'"
+            type="is-danger"
             aria-close-label="Close notification"
             role="alert"
           >
-            You are currently <em>{{ isOnline ? 'online' : 'offline' }}</em>
+            You are currently <em>online</em>
             <span v-if="isOnline">
               . This tool should only be used when you're offline
             </span>
           </b-notification>
         </div>
         <div class="column has-text-centered">
-          Generate a random mnemonic, or enter your own below
+          <h4>Generate a new mnemonic or enter your own</h4>
           <b-tabs position="is-centered" class="block">
             <b-tab-item label="Generate New">
               <div class="has-text-left">
@@ -82,7 +82,7 @@
                   </div>
                 </b-field>
                 <b-field>
-                  <b-field v-if='showEnthropyInput'>
+                  <b-field v-if="showEnthropyInput">
                     <b-field label="Enthropy">
                       <b-input v-model="enthropy" class="enthropy-display" type="textarea" expanded readonly />
                     </b-field>
@@ -95,21 +95,21 @@
                     </b-button>
                   </p>
                 </b-field>
-                <b-field v-if="mnemonic">
-                  <b-field label="Mnemonic">
-                    <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
-                  </b-field>
-                </b-field>
               </div>
             </b-tab-item>
-            <b-tab-item label="Use Existing">
-              <div class="has-text-left">
-                <b-field label="Mnemonic">
-                  <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
-                </b-field>
-              </div>
-            </b-tab-item>
+            <b-tab-item label="Use Existing" />
           </b-tabs>
+          <div class="has-text-left">
+            <b-field>
+              <b-field
+                :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
+                :message="mnemonic ? validMnemonic ? 'valid': 'invalid' : ''"
+                label="Mnemonic"
+              >
+                <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
+              </b-field>
+            </b-field>
+          </div>
         </div>
         <div class="column" />
       </div>
@@ -147,6 +147,11 @@ export default {
       lastY: 0,
       lastEnthropyTick: null,
       showEnthropyInput: false
+    }
+  },
+  computed: {
+    validMnemonic () {
+      return bip39.validateMnemonic(this.mnemonic)
     }
   },
   created () {
