@@ -16,6 +16,7 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.5.4",
     "@nuxtjs/pwa": "^3.0.0-beta.16",
+    "bip39": "^3.0.2",
     "nuxt": "^2.0.0",
     "nuxt-buefy": "^0.3.2"
   },

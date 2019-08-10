@@ -50,52 +50,47 @@
                       </option>
                     </b-select>
                   </b-field>
-                  <b-field label="Custom Enthropy Input">
+                  <b-field label="Enthropy">
                     <b-field>
-                      <b-input v-model="enthropy" placeholder="move your mouse to add random enthropy" name="subject" :maxlength="enthropyLength" expanded />
-
-                      <b-select v-model="enthropyLength">
-                        <option title="100" value="100">
-                          100
-                        </option>
-                        <option title="80" value="80">
-                          80
-                        </option>
-                      </b-select>
                       <p class="control">
-                        <button :class="isGeneratingEnthropy ? 'button is-primary is-active' : 'button is-info'" @click="generateEnthropy">
-                          Generate Enthropy
+                        <button class="button is-outlined is-info " @click="generateRandomEnthropy">
+                          Random
+                        </button>
+                        <button :class="isGeneratingEnthropy ? 'button is-primary is-outlined is-active' : 'button is-info is-outlined'" @click="generateEnthropy">
+                          {{ isGeneratingEnthropy ? 'Stop' : 'Generate' }}
                         </button>
                       </p>
                     </b-field>
                   </b-field>
-                  <b-field label="Mouse Coordinates">
-                    <button class="button is-info">
-                      {{ lastX }}:{{ lastY }}
-                    </button>
-                  </b-field>
                 </b-field>
                 <b-field grouped>
                   <div class="field spacer">
-                    <b-taglist attached>
-                      <b-tag size="is-medium" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
-                        {{ enthropy }}
-                      </b-tag>
+                    <b-taglist v-if="enthropyHash" attached>
                       <b-tag size="is-medium" type="is-dark">
-                        {{ enthropy.length }}/{{ enthropyLength }}
+                        Enthropy Input Hash
+                      </b-tag>
+                      <b-tag size="is-medium" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
+                        {{ enthropyHash }}
                       </b-tag>
                     </b-taglist>
                   </div>
                 </b-field>
-                <b-field grouped>
+                <b-field>
+                  <b-field>
+                    <b-field label="Enthropy">
+                      <b-input v-model="enthropy" class="enthropy-display" type="textarea" expanded readonly />
+                    </b-field>
+                  </b-field>
+                </b-field>
+                <b-field v-if="enthropyHash" grouped>
                   <p class="control spacer">
                     <b-button type="is-primary is-medium is-outlined" @click="generateMnemonic">
                       Generate Mnemonic
                     </b-button>
                   </p>
                 </b-field>
-                <b-field>
-                  <b-field :label="&quot;Mnemonic (&quot; + language + &quot;)&quot;">
+                <b-field v-if="mnemonic">
+                  <b-field label="Mnemonic">
                     <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
                   </b-field>
                 </b-field>
@@ -118,6 +113,16 @@
 </template>
 
 <script>
+import * as bip39 from 'bip39'
+
+async function digestMessage (message) {
+  const msgUint8 = new TextEncoder().encode(message) // encode as (utf-8) Uint8Array
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8) // hash the message
+  const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+  return hashHex
+}
+
 export default {
   name: 'Generator',
   components: {
@@ -129,7 +134,8 @@ export default {
       language: 'en',
       words: 15,
       mnemonic: '',
-      enthropy: (Math.random() * 100).toString(),
+      enthropy: '',
+      enthropyHash: '',
       enthropyLength: 100,
       lastX: 0,
       lastY: 0,
@@ -153,21 +159,35 @@ export default {
       this.isOnline = navigator.onLine
     },
     generateMnemonic () {
-      this.mnemonic = 'this should be some kind of generated mnemonic somewhere in the future of with ' + this.words + ' words'
+      this.mnemonic = bip39.entropyToMnemonic('a1f5d722e4e2d1a9b3c4a1d3a9a1a1a1')
+    },
+    clearEnthropy () {
+      this.enthropy = null
+      this.lastEnthropyTick = null
+      this.enthropyHash = null
+    },
+    async generateRandomEnthropy () {
+      const array = new Uint8Array(64)
+      const randomUint8array = window.crypto.getRandomValues(array)
+      this.enthropy = new TextDecoder('utf-8').decode(randomUint8array)
+      this.enthropyHash = await digestMessage(this.enthropy)
     },
     generateEnthropy (event) {
-      window.clearInterval(this.intervalEvent)
       this.isGeneratingEnthropy = !this.isGeneratingEnthropy
       if (this.isGeneratingEnthropy) {
-        this.enthropy = ''
-        this.lastEnthropyTick = null
         window.addEventListener('mousemove', this.addEnthropy)
       } else {
         window.removeEventListener('mousemove', this.addEnthropy)
-        window.clearInterval(this.intervalEvent)
       }
     },
-    addEnthropy (event) {
+    async addEnthropy (event) {
+      if (this.enthropy && this.enthropy.length >= 500) {
+        this.entropy = null
+        this.isGeneratingEnthropy = false
+        this.lastEnthropyTick = null
+        window.removeEventListener('mousemove', this.addEnthropy)
+      }
+
       const ts = new Date().getTime()
       if (!this.lastEnthropyTick) {
         this.lastEnthropyTick = ts
@@ -178,16 +198,12 @@ export default {
         if (x !== this.lastX && y !== this.lastY) {
           this.lastX = x
           this.lastY = y
-          // TODO: Fix wonderfull off by some error :D
           const z = (Math.random(x) * Math.random(y) * 100).toString()
-          if (this.enthropy.length <= this.enthropyLength) {
-            this.enthropy += Math.round(z / Math.random(100))
-            this.lastEnthropyTick = ts
-          } else {
-            window.removeEventListener('mousemove', this.addEnthropy)
-            this.isGeneratingEnthropy = false
-            this.lastEnthropyTick = null
-          }
+          const zArray = new Uint8Array(z)
+          const randomUint8array = window.crypto.getRandomValues(zArray)
+          this.enthropy += new TextDecoder('utf-8').decode(randomUint8array)
+          this.enthropyHash = await digestMessage(this.enthropy)
+          this.lastEnthropyTick = ts
         }
       }
     }
@@ -195,3 +211,9 @@ export default {
 }
 
 </script>
+
+<style>
+ .enthropy-display {
+   font-size: 0.5em;
+ }
+</style>
