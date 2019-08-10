@@ -62,6 +62,9 @@
                         <button class="button is-outlined is-info " @click="toggleShowEnthropyInput">
                           Show
                         </button>
+                        <button class="button is-outlined is-info " @click="clearEnthropy">
+                          Clear
+                        </button>
                       </p>
                     </b-field>
                   </b-field>
@@ -151,6 +154,8 @@ export default {
       window.addEventListener('online', this.checkOnlineStatus)
       window.addEventListener('offline', this.checkOnlineStatus)
     }
+
+    this.generateRandomEnthropy()
   },
   destroyed () {
     if (process.browser) {
@@ -166,7 +171,9 @@ export default {
       this.isOnline = navigator.onLine
     },
     generateMnemonic () {
-      this.mnemonic = bip39.entropyToMnemonic('a1f5d722e4e2d1a9b3c4a1d3a9a1a1a1')
+      if (this.enthropyHash) {
+        this.mnemonic = bip39.entropyToMnemonic(this.enthropyHash)
+      }
     },
     clearEnthropy () {
       this.enthropy = null
