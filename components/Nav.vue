@@ -7,6 +7,7 @@
           src="~/assets/logo.svg"
           alt="SEEDHODLER"
         >
+        Alpha
       </b-navbar-item>
     </template>
     <template slot="start" />
