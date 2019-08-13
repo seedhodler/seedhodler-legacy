@@ -1,7 +1,7 @@
 {
   "name": "seedhodler-next",
   "version": "1.0.0",
-  "description": "  &#34;description&#34;: &#34;Shamir Foo Secret Sharing built for BIP39 Mnemonics. Alternative implementation to https://github.com/iancoleman/shamir39 &#34;,",
+  "description": "Shamir Secret Sharing built for BIP39 Mnemonics. Alternative implementation to https://github.com/iancoleman/shamir39",
   "author": "seedhodler",
   "private": true,
   "scripts": {
@@ -11,7 +11,9 @@
     "dev": "nuxt",
     "build": "nuxt build",
     "start": "nuxt start",
-    "generate": "nuxt generate"
+    "generate": "nuxt generate",
+    "build:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt build",
+    "generate:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt generate"
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.5.4",
