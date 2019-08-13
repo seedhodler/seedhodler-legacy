@@ -1,10 +1,12 @@
-# seedhodler-next
+# Work in progress: Seedhodler
 
->   &#34;description&#34;: &#34;Shamir Secret Sharing built for BIP39 Mnemonics. Alternative implementation to https://github.com/iancoleman/shamir39 &#34;,
+> _This project is a work in progress (WIP) and should not be used by anyone, under any circumstances for any reason whatsoever until the WIP status has been resolved_
+
+> &#34;Shamir Secret Sharing built for BIP39 Mnemonics. Alternative implementation to https://github.com/iancoleman/shamir39 &#34;,
 
 ## Build Setup
 
-``` bash
+```bash
 # install dependencies
 $ yarn install
 
@@ -18,5 +20,3 @@ $ yarn start
 # generate static project
 $ yarn generate
 ```
-
-For detailed explanation on how things work, checkout [Nuxt.js docs](https://nuxtjs.org).
