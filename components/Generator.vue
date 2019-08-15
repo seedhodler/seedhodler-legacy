@@ -118,15 +118,72 @@
             <b-tab-item label="Use Existing" />
           </b-tabs>
           <div class="column has-text-left">
+            <b-tabs class="block" type="is-boxed">
+              <b-tab-item label="Mnemonic">
+                <b-field>
+                  <b-field
+                    :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
+                    :message="mnemonic ? validMnemonic ? 'valid': 'invalid' : ''"
+                  >
+                    <b-input v-model="mnemonic" type="textarea" expanded />
+                  </b-field>
+                </b-field>
+              </b-tab-item>
+              <b-tab-item label="Derivation (BIP 32)">
+                <div v-if="bip32node" class="column">
+                  <b-field label="Key Info: (Node Public Key)">
+                    <b-input :value="bip32node.publicKey.toString('hex')" expanded />
+                  </b-field>
+                  <b-field label="Key Info: Depth">
+                    <b-input :value="bip32node.depth" expanded />
+                  </b-field>
+                  <b-field label="Key Info: (Node Private Key)">
+                    <b-input :value="bip32node.privateKey.toString('hex')" expanded />
+                  </b-field>
+                </div>
+                <div v-if="derivedPath" class="column">
+                  <b-field
+                    horizontal
+                    :type="validDerivationPath ? 'is-success' : 'is-warning'"
+                    :message="validDerivationPath ? 'valid path' : 'invalid path'"
+                    label="Path"
+                  >
+                    <b-input v-model="derivationPath" expanded />
+                    <p class="control">
+                      <b-button :disabled="!validDerivationPath" type="is-success" @click="updateDerivationPath">
+                        derive
+                      </b-button>
+                    </p>
+                  </b-field>
+                  <b-field label="Private Key (WIF)">
+                    <b-input :value="derivedPath.toWIF()" expanded />
+                  </b-field>
+                  <b-field label="Derived Private Key">
+                    <b-input :value="derivedPath.toBase58()" expanded />
+                  </b-field>
+                </div>
+              </b-tab-item>
+            </b-tabs>
+          </div>
+          <div v-if="mnemonic" class="column has-text-left">
             <b-field>
-              <b-field
-                :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
-                :message="mnemonic ? validMnemonic ? 'valid': 'invalid' : ''"
-                label="Mnemonic"
-              >
-                <b-input v-model="mnemonic" maxlength="2000" type="textarea" expanded />
-              </b-field>
+              <b-button type="is-primary is-medium is-outlined" @click="slip39">
+                Split
+              </b-button>
             </b-field>
+          </div>
+          <div v-for="share in allShares" :key="share" class="column has-text-left">
+            <b-message class="column is-full spacer">
+              {{ share }}
+            </b-message>
+          </div>
+          <div v-if="recoveredSecret" class="column has-text-left">
+            <b-message
+              class="column is-full spacer"
+              :type="recoveredSecret.decodeHex() === mnemonic ? 'is-success': 'is-danger'"
+            >
+              {{ recoveredSecret.decodeHex() }}
+            </b-message>
           </div>
         </div>
       </div>
@@ -136,6 +193,8 @@
 
 <script>
 import * as bip39 from 'bip39'
+import * as slip39 from 'slip39/src/slip39'
+import * as bip32 from 'bip32'
 
 async function digestMessage (message) {
   const msgUint8 = new TextEncoder().encode(message) // encode as (utf-8) Uint8Array
@@ -155,19 +214,34 @@ export default {
       isGeneratingEnthropy: false,
       language: 'english',
       words: 15,
-      mnemonic: '',
-      enthropy: '',
+      mnemonic: null,
+      seed: null,
+      bip32node: null,
+      enthropy: null,
       enthropyHash: '',
       enthropyLength: 100,
       lastX: 0,
       lastY: 0,
       lastEnthropyTick: null,
-      showEnthropyInput: false
+      showEnthropyInput: false,
+      recoveredSecret: null,
+      allShares: null,
+      derivationPath: 'm/0\'/0/0',
+      derivedPath: null
     }
   },
   computed: {
     validMnemonic () {
       return bip39.validateMnemonic(this.mnemonic)
+    },
+    validDerivationPath () {
+      let valid = true
+      try {
+        this.bip32node.derivePath(this.derivationPath)
+      } catch (e) {
+        valid = false
+      }
+      return valid
     }
   },
   created () {
@@ -185,6 +259,49 @@ export default {
     }
   },
   methods: {
+    slip39 () {
+      const threshold = 2
+      const seed = bip39.mnemonicToSeedSync(this.mnemonic)
+      const masterSecret = seed.toString('hex').encodeHex()
+      // let ba = new TextDecoder("utf-8").decode(this.mnemonic);
+      // if (masterSecret.length % 2 !== 0) {
+      //   masterSecret = masterSecret
+      // }
+
+      const passphrase = 'TREZOR'
+
+      const groups = [
+        // Alice group shares. 1 is enough to reconstruct a group share,
+        // therefore she needs at least two group shares to reconstruct the master secret.
+        [1, 1],
+        [1, 1],
+        // 3 of 5 Friends' shares are required to reconstruct this group share
+        [3, 5],
+        // 2 of 6 Family's shares are required to reconstruct this group share
+        [2, 6]
+      ]
+
+      const slip = slip39.fromArray(masterSecret, {
+        passphrase,
+        threshold,
+        groups
+      })
+
+      const aliceShare = slip.fromPath('r/0').mnemonics
+
+      // and any two of family's shares.
+      const familyShares = slip.fromPath('r/3/1').mnemonics
+        .concat(slip.fromPath('r/3/3').mnemonics)
+
+      this.allShares = aliceShare.concat(familyShares)
+
+      // console.log('Shares used for restoring the master secret:')
+      // allShares.forEach(s => console.log(s))
+
+      this.recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
+      // console.log('Master secret: ' + masterSecret.decodeHex())
+      // console.log('Recovered one: ' + recoveredSecret.decodeHex())
+    },
     toggleShowEnthropyInput () {
       this.showEnthropyInput = !this.showEnthropyInput
     },
@@ -194,8 +311,18 @@ export default {
     generateMnemonic () {
       if (this.enthropyHash) {
         bip39.setDefaultWordlist(this.language)
-        this.mnemonic = bip39.entropyToMnemonic(this.enthropyHash)
+        const mnemonic = bip39.entropyToMnemonic(this.enthropyHash)
+        const seed = bip39.mnemonicToSeedSync(mnemonic)
+        const node = bip32.fromSeed(seed)
+        const derivedPath = node.derivePath(this.derivationPath)
+        this.mnemonic = mnemonic
+        this.seed = seed.toString('hex')
+        this.bip32node = node
+        this.derivedPath = derivedPath
       }
+    },
+    updateDerivationPath () {
+      this.derivedPath = this.bip32node.derivePath(this.derivationPath)
     },
     clearEnthropy () {
       this.enthropy = null
