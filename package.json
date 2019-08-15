@@ -24,7 +24,8 @@
     "nuxt": "^2.0.0",
     "nuxt-buefy": "^0.3.2",
     "push-dir": "^0.4.1",
-    "slip39": "^0.1.5-dev.1"
+    "slip39": "^0.1.5-dev.1",
+    "utf8": "^3.0.0"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^1.0.1",

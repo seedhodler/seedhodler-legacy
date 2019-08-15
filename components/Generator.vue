@@ -137,6 +137,18 @@
                   <b-field label="Key Info: Depth">
                     <b-input :value="bip32node.depth" expanded />
                   </b-field>
+                  <b-field label="Key Info: Index">
+                    <b-input :value="bip32node.index" expanded />
+                  </b-field>
+                  <b-field label="Key Info: Identifier">
+                    <b-input :value="bip32node.identifier.toString('hex')" expanded />
+                  </b-field>
+                  <b-field v-if="bip32node.parentFingerprint" label="Key Info: Parent Fingerprint">
+                    <b-input :value="bip32node.parentFingerprint.toString('hex')" expanded />
+                  </b-field>
+                  <b-field label="Key Info: Parent Fingerprint">
+                    <b-input :value="bip32node.fingerprint.toString('hex')" expanded />
+                  </b-field>
                   <b-field label="Key Info: (Node Private Key)">
                     <b-input :value="bip32node.privateKey.toString('hex')" expanded />
                   </b-field>
@@ -148,7 +160,7 @@
                     :message="validDerivationPath ? 'valid path' : 'invalid path'"
                     label="Path"
                   >
-                    <b-input v-model="derivationPath" expanded />
+                    <b-input v-model="derivationPath" />
                     <p class="control">
                       <b-button :disabled="!validDerivationPath" type="is-success" @click="updateDerivationPath">
                         derive
@@ -179,10 +191,10 @@
           </div>
           <div v-if="recoveredSecret" class="column has-text-left">
             <b-message
-              class="column is-full spacer"
-              :type="recoveredSecret.decodeHex() === mnemonic ? 'is-success': 'is-danger'"
+              title="Recovered Mnemonic"
+              :type="recoveredSecret === mnemonic ? 'is-success': 'is-danger'"
             >
-              {{ recoveredSecret.decodeHex() }}
+              {{ recoveredSecret }}
             </b-message>
           </div>
         </div>
@@ -261,14 +273,22 @@ export default {
   methods: {
     slip39 () {
       const threshold = 2
-      const seed = bip39.mnemonicToSeedSync(this.mnemonic)
-      const masterSecret = seed.toString('hex').encodeHex()
-      // let ba = new TextDecoder("utf-8").decode(this.mnemonic);
-      // if (masterSecret.length % 2 !== 0) {
-      //   masterSecret = masterSecret
-      // }
+      let baseMnemonic = this.mnemonic.toString()
+      let paddedSecret = baseMnemonic.encodeHex()
+      let byteSize = new Blob([paddedSecret]).size
+      console.log(new Blob([paddedSecret]))
+      while (byteSize % 2 !== 0) {
+        baseMnemonic = baseMnemonic + ' '
+        paddedSecret = baseMnemonic.encodeHex()
+        byteSize = new Blob([paddedSecret]).size
+        console.log(byteSize)
+        console.log('padding empty space')
+      }
 
-      const passphrase = 'TREZOR'
+      const masterSecret = paddedSecret
+      byteSize = new Blob([paddedSecret]).size
+      console.log('master' + byteSize)
+      const passphrase = ''
 
       const groups = [
         // Alice group shares. 1 is enough to reconstruct a group share,
@@ -298,7 +318,9 @@ export default {
       // console.log('Shares used for restoring the master secret:')
       // allShares.forEach(s => console.log(s))
 
-      this.recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
+      const recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
+      console.log(recoveredSecret)
+      this.recoveredSecret = recoveredSecret.decodeHex().trim()
       // console.log('Master secret: ' + masterSecret.decodeHex())
       // console.log('Recovered one: ' + recoveredSecret.decodeHex())
     },
