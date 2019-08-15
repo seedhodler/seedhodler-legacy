@@ -24,3 +24,10 @@ $ yarn start
 # generate static project
 $ yarn generate
 ```
+
+# Dependencies
+
+Primary dependencies (see package.json for entire list)
+
+- [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md): SatoshiLabs
+- [bip39](https://github.com/bitcoinjs/bip39): Bitcoinjs
