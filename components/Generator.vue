@@ -68,20 +68,22 @@
                       </option>
                     </b-select>
                   </b-field>
-                  <b-field label="Enthropy">
+                </b-field>
+                <b-field grouped>
+                  <b-field label="Entropy">
                     <b-field>
                       <p class="control">
-                        <button class="button is-outlined is-info " @click="generateRandomEnthropy">
+                        <button class="button is-outlined is-info " @click="clearEntropy">
+                          Clear
+                        </button>
+                        <button class="button is-outlined is-info " @click="generateRandomEntropy">
                           Random
                         </button>
-                        <button :class="isGeneratingEnthropy ? 'button is-primary is-outlined is-active' : 'button is-info is-outlined'" @click="generateEnthropy">
-                          {{ isGeneratingEnthropy ? 'Stop' : 'Generate' }}
+                        <button :class="isGeneratingEntropy ? 'button is-primary is-outlined is-active' : 'button is-info is-outlined'" @click="generateEntropy">
+                          {{ isGeneratingEntropy ? 'Stop' : 'Generate' }}
                         </button>
-                        <button class="button is-outlined is-info " @click="toggleShowEnthropyInput">
+                        <button class="button is-outlined is-info " @click="toggleShowEntropyInput">
                           Show
-                        </button>
-                        <button class="button is-outlined is-info " @click="clearEnthropy">
-                          Clear
                         </button>
                       </p>
                     </b-field>
@@ -89,24 +91,24 @@
                 </b-field>
                 <b-field grouped>
                   <div class="field spacer">
-                    <b-taglist v-if="enthropyHash" attached>
-                      <b-tag size="is-small" type="is-dark">
-                        Enthropy Input Hash
+                    <b-taglist v-if="entropyHash" attached>
+                      <b-tag size="is-large" type="is-dark">
+                        Entropy Input Hash
                       </b-tag>
-                      <b-tag size="is-small" :type="isGeneratingEnthropy ? 'is-primary' : 'is-info'">
-                        {{ enthropyHash }}
+                      <b-tag size="is-large" :type="isGeneratingEntropy ? 'is-primary' : 'is-info'">
+                        {{ entropyHash }}
                       </b-tag>
                     </b-taglist>
                   </div>
                 </b-field>
                 <b-field>
-                  <b-field v-if="showEnthropyInput">
-                    <b-field label="Enthropy">
-                      <b-input v-model="enthropy" class="enthropy-display" type="textarea" expanded readonly />
+                  <b-field v-if="showEntropyInput">
+                    <b-field label="Entropy">
+                      <b-input v-model="entropy" class="entropy-display" type="textarea" expanded readonly />
                     </b-field>
                   </b-field>
                 </b-field>
-                <b-field v-if="enthropyHash" grouped>
+                <b-field v-if="entropyHash" grouped>
                   <p class="control spacer">
                     <b-button type="is-primary is-medium is-outlined" @click="generateMnemonic">
                       Generate Mnemonic
@@ -223,19 +225,19 @@ export default {
   data () {
     return {
       isOnline: true,
-      isGeneratingEnthropy: false,
+      isGeneratingEntropy: false,
       language: 'english',
       words: 15,
       mnemonic: null,
       seed: null,
       bip32node: null,
-      enthropy: null,
-      enthropyHash: '',
-      enthropyLength: 100,
+      entropy: null,
+      entropyHash: '',
+      entropyLength: 100,
       lastX: 0,
       lastY: 0,
-      lastEnthropyTick: null,
-      showEnthropyInput: false,
+      lastEntropyTick: null,
+      showEntropyInput: false,
       recoveredSecret: null,
       allShares: null,
       derivationPath: 'm/0\'/0/0',
@@ -262,7 +264,7 @@ export default {
       window.addEventListener('offline', this.checkOnlineStatus)
     }
 
-    this.generateRandomEnthropy()
+    this.generateRandomEntropy()
   },
   destroyed () {
     if (process.browser) {
@@ -324,16 +326,16 @@ export default {
       // console.log('Master secret: ' + masterSecret.decodeHex())
       // console.log('Recovered one: ' + recoveredSecret.decodeHex())
     },
-    toggleShowEnthropyInput () {
-      this.showEnthropyInput = !this.showEnthropyInput
+    toggleShowEntropyInput () {
+      this.showEntropyInput = !this.showEntropyInput
     },
     checkOnlineStatus () {
       this.isOnline = navigator.onLine
     },
     generateMnemonic () {
-      if (this.enthropyHash) {
+      if (this.entropyHash) {
         bip39.setDefaultWordlist(this.language)
-        const mnemonic = bip39.entropyToMnemonic(this.enthropyHash)
+        const mnemonic = bip39.entropyToMnemonic(this.entropyHash)
         const seed = bip39.mnemonicToSeedSync(mnemonic)
         const node = bip32.fromSeed(seed)
         const derivedPath = node.derivePath(this.derivationPath)
@@ -346,38 +348,38 @@ export default {
     updateDerivationPath () {
       this.derivedPath = this.bip32node.derivePath(this.derivationPath)
     },
-    clearEnthropy () {
-      this.enthropy = null
-      this.lastEnthropyTick = null
-      this.enthropyHash = null
+    clearEntropy () {
+      this.entropy = null
+      this.lastEntropyTick = null
+      this.entropyHash = null
     },
-    async generateRandomEnthropy () {
+    async generateRandomEntropy () {
       const array = new Uint8Array(64)
       const randomUint8array = window.crypto.getRandomValues(array)
-      this.enthropy = new TextDecoder('utf-8').decode(randomUint8array)
-      this.enthropyHash = await digestMessage(this.enthropy)
+      this.entropy = new TextDecoder('utf-8').decode(randomUint8array)
+      this.entropyHash = await digestMessage(this.entropy)
     },
-    generateEnthropy (event) {
-      this.isGeneratingEnthropy = !this.isGeneratingEnthropy
-      if (this.isGeneratingEnthropy) {
-        window.addEventListener('mousemove', this.addEnthropy)
+    generateEntropy (event) {
+      this.isGeneratingEntropy = !this.isGeneratingEntropy
+      if (this.isGeneratingEntropy) {
+        window.addEventListener('mousemove', this.addEntropy)
       } else {
-        window.removeEventListener('mousemove', this.addEnthropy)
+        window.removeEventListener('mousemove', this.addEntropy)
       }
     },
-    async addEnthropy (event) {
-      if (this.enthropy && this.enthropy.length >= 500) {
+    async addEntropy (event) {
+      if (this.entropy && this.entropy.length >= 500) {
         this.entropy = null
-        this.isGeneratingEnthropy = false
-        this.lastEnthropyTick = null
-        window.removeEventListener('mousemove', this.addEnthropy)
+        this.isGeneratingEntropy = false
+        this.lastEntropyTick = null
+        window.removeEventListener('mousemove', this.addEntropy)
       }
 
       const ts = new Date().getTime()
-      if (!this.lastEnthropyTick) {
-        this.lastEnthropyTick = ts
+      if (!this.lastEntropyTick) {
+        this.lastEntropyTick = ts
       }
-      if (ts - this.lastEnthropyTick > 100) {
+      if (ts - this.lastEntropyTick > 100) {
         const x = event.clientX
         const y = event.clientY
         if (x !== this.lastX && y !== this.lastY) {
@@ -386,9 +388,9 @@ export default {
           const z = (Math.random(x) * Math.random(y) * 100).toString()
           const zArray = new Uint8Array(z)
           const randomUint8array = window.crypto.getRandomValues(zArray)
-          this.enthropy += new TextDecoder('utf-8').decode(randomUint8array)
-          this.enthropyHash = await digestMessage(this.enthropy)
-          this.lastEnthropyTick = ts
+          this.entropy += new TextDecoder('utf-8').decode(randomUint8array)
+          this.entropyHash = await digestMessage(this.entropy)
+          this.lastEntropyTick = ts
         }
       }
     }
@@ -398,7 +400,7 @@ export default {
 </script>
 
 <style>
- .enthropy-display {
+ .entropy-display {
    font-size: 0.5em;
  }
 </style>
