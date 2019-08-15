@@ -51,20 +51,21 @@
 
                   <b-field label="Words">
                     <b-select v-model="words">
-                      <option title="English" value="12">
-                        12
+                       <option title="24" value="24">
+                        24
                       </option>
-                      <option title="French" value="15">
-                        15
-                      </option>
-                      <option title="French" value="18">
-                        18
-                      </option>
-                      <option title="French" value="21">
+                       <option disabled title="21" value="21">
                         21
                       </option>
-                      <option title="French" value="24">
-                        24
+                       <option disabled title="18" value="18">
+                        18
+                      </option>
+                       <option disabled title="15" value="15">
+                        15
+                      </option>
+
+                      <option disabled title="12" value="12">
+                        12
                       </option>
                     </b-select>
                   </b-field>
@@ -77,14 +78,15 @@
                           Clear
                         </button>
                         <button class="button is-outlined is-info " @click="generateRandomEntropy">
-                          Random
+                          Generate Random
                         </button>
-                        <button :class="isGeneratingEntropy ? 'button is-primary is-outlined is-active' : 'button is-info is-outlined'" @click="generateEntropy">
-                          {{ isGeneratingEntropy ? 'Stop' : 'Generate' }}
+                        <button :class="isGeneratingEntropy ? 'button is-danger is-active' : 'button is-info is-outlined'" @click="generateEntropy">
+                          {{ isGeneratingEntropy ? 'Stop Generating' : 'Generate with clicks' }}
                         </button>
-                        <button class="button is-outlined is-info " @click="toggleShowEntropyInput">
-                          Show
-                        </button>
+                        <b-button type="is-text" @click="toggleShowEntropyInput">
+                          Show Input
+                        </b-button>
+                         <b-progress v-if='isGeneratingEntropy' type="is-danger" :value="entropyGenerationProgress" />
                       </p>
                     </b-field>
                   </b-field>
@@ -92,10 +94,10 @@
                 <b-field grouped>
                   <div class="field spacer">
                     <b-taglist v-if="entropyHash" attached>
-                      <b-tag size="is-large" type="is-dark">
+                      <b-tag type="is-dark">
                         Entropy Input Hash
                       </b-tag>
-                      <b-tag size="is-large" :type="isGeneratingEntropy ? 'is-primary' : 'is-info'">
+                      <b-tag :type="isGeneratingEntropy ? 'is-danger' : 'is-warning'">
                         {{ entropyHash }}
                       </b-tag>
                     </b-taglist>
@@ -104,7 +106,7 @@
                 <b-field>
                   <b-field v-if="showEntropyInput">
                     <b-field label="Entropy">
-                      <b-input v-model="entropy" class="entropy-display" type="textarea" expanded readonly />
+                      <b-input v-model="entropy" class="entropy-display" type="textarea" expanded />
                     </b-field>
                   </b-field>
                 </b-field>
@@ -227,12 +229,13 @@ export default {
       isOnline: true,
       isGeneratingEntropy: false,
       language: 'english',
-      words: 15,
+      words: 24,
       mnemonic: null,
       seed: null,
       bip32node: null,
       entropy: null,
       entropyHash: '',
+      entropyGenerationProgress: 0,
       entropyLength: 100,
       lastX: 0,
       lastY: 0,
@@ -242,6 +245,7 @@ export default {
       allShares: null,
       derivationPath: 'm/0\'/0/0',
       derivedPath: null
+
     }
   },
   computed: {
@@ -352,27 +356,33 @@ export default {
       this.entropy = null
       this.lastEntropyTick = null
       this.entropyHash = null
+      this.entropyGenerationProgress = 0
     },
     async generateRandomEntropy () {
+      this.isGeneratingEntropy = true
       const array = new Uint8Array(64)
       const randomUint8array = window.crypto.getRandomValues(array)
       this.entropy = new TextDecoder('utf-8').decode(randomUint8array)
       this.entropyHash = await digestMessage(this.entropy)
+      window.setTimeout(() => {
+        this.isGeneratingEntropy = false
+      }, 200)
     },
     generateEntropy (event) {
       this.isGeneratingEntropy = !this.isGeneratingEntropy
       if (this.isGeneratingEntropy) {
-        window.addEventListener('mousemove', this.addEntropy)
+        this.entropyGenerationProgress = 0
+        window.addEventListener('click', this.addEntropy)
       } else {
-        window.removeEventListener('mousemove', this.addEntropy)
+        window.removeEventListener('click', this.addEntropy)
       }
     },
     async addEntropy (event) {
       if (this.entropy && this.entropy.length >= 500) {
-        this.entropy = null
         this.isGeneratingEntropy = false
         this.lastEntropyTick = null
-        window.removeEventListener('mousemove', this.addEntropy)
+        this.entropyGenerationProgress = 100
+        window.removeEventListener('click', this.addEntropy)
       }
 
       const ts = new Date().getTime()
@@ -391,6 +401,7 @@ export default {
           this.entropy += new TextDecoder('utf-8').decode(randomUint8array)
           this.entropyHash = await digestMessage(this.entropy)
           this.lastEntropyTick = ts
+          this.entropyGenerationProgress = Math.round(this.entropy.length / 500 * 100)
         }
       }
     }
@@ -402,5 +413,10 @@ export default {
 <style>
  .entropy-display {
    font-size: 0.5em;
+ }
+
+ .progress {
+   margin-top: 10px;
+   height: 4px;
  }
 </style>
