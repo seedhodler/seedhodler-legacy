@@ -31,3 +31,9 @@ Primary dependencies (see package.json for entire list)
 
 - [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md): SatoshiLabs
 - [bip39](https://github.com/bitcoinjs/bip39): Bitcoinjs
+
+# References
+
+- [bip32jp](https://bip32jp.github.io/english/): bip32JP
+- [shamir39](https://iancoleman.io/shamir39/): iancoleman.io
+- [https://bip39tool.ioncore.xyz/](https://bip39tool.ioncore.xyz/): iancoleman.io
