@@ -51,16 +51,16 @@
 
                   <b-field label="Words">
                     <b-select v-model="words">
-                       <option title="24" value="24">
+                      <option title="24" value="24">
                         24
                       </option>
-                       <option disabled title="21" value="21">
+                      <option disabled title="21" value="21">
                         21
                       </option>
-                       <option disabled title="18" value="18">
+                      <option disabled title="18" value="18">
                         18
                       </option>
-                       <option disabled title="15" value="15">
+                      <option disabled title="15" value="15">
                         15
                       </option>
 
@@ -86,7 +86,7 @@
                         <b-button type="is-text" @click="toggleShowEntropyInput">
                           Show Input
                         </b-button>
-                         <b-progress v-if='isGeneratingEntropy' type="is-danger" :value="entropyGenerationProgress" />
+                        <b-progress v-if="isGeneratingEntropy" type="is-danger" :value="entropyGenerationProgress" />
                       </p>
                     </b-field>
                   </b-field>
@@ -264,6 +264,7 @@ export default {
   },
   created () {
     if (process.browser) {
+      this.checkOnlineStatus()
       window.addEventListener('online', this.checkOnlineStatus)
       window.addEventListener('offline', this.checkOnlineStatus)
     }
