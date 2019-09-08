@@ -54,25 +54,31 @@
                       <option title="24" value="24">
                         24
                       </option>
-                      <option disabled title="21" value="21">
+                      <option title="21" value="21">
                         21
                       </option>
-                      <option disabled title="18" value="18">
+                      <option title="18" value="18">
                         18
                       </option>
-                      <option disabled title="15" value="15">
+                      <option title="15" value="15">
                         15
                       </option>
 
-                      <option disabled title="12" value="12">
+                      <option title="12" value="12">
                         12
                       </option>
                     </b-select>
                   </b-field>
                 </b-field>
+                <b-field grouped>
+                  <p class="control spacer">
+                    <b-button type="is-primary is-medium is-outlined" @click="generateMnemonic">
+                      Generate Mnemonic
+                    </b-button>
+                  </p>
+                </b-field>
               </div>
             </b-tab-item>
-            <EntropyGenerator />
             <b-tab-item label="Use Existing" />
           </b-tabs>
           <div class="column has-text-left">
@@ -165,12 +171,10 @@
 import * as bip39 from 'bip39'
 import * as slip39 from 'slip39/src/slip39'
 import * as bip32 from 'bip32'
-import EntropyGenerator from '~/components/EntropyGenerator'
 
 export default {
   name: 'Generator',
   components: {
-    EntropyGenerator
   },
   data () {
     return {
@@ -252,36 +256,29 @@ export default {
 
       const aliceShare = slip.fromPath('r/0').mnemonics
 
-      // and any two of family's shares.
       const familyShares = slip.fromPath('r/3/1').mnemonics
         .concat(slip.fromPath('r/3/3').mnemonics)
 
       this.allShares = aliceShare.concat(familyShares)
 
-      // console.log('Shares used for restoring the master secret:')
-      // allShares.forEach(s => console.log(s))
-
       const recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
       console.log(recoveredSecret)
       this.recoveredSecret = recoveredSecret.decodeHex().trim()
-      // console.log('Master secret: ' + masterSecret.decodeHex())
-      // console.log('Recovered one: ' + recoveredSecret.decodeHex())
     },
     checkOnlineStatus () {
       this.isOnline = navigator.onLine
     },
     generateMnemonic () {
-      if (this.entropyHash) {
-        bip39.setDefaultWordlist(this.language)
-        const mnemonic = bip39.entropyToMnemonic(this.entropyHash)
-        const seed = bip39.mnemonicToSeedSync(mnemonic)
-        const node = bip32.fromSeed(seed)
-        const derivedPath = node.derivePath(this.derivationPath)
-        this.mnemonic = mnemonic
-        this.seed = seed.toString('hex')
-        this.bip32node = node
-        this.derivedPath = derivedPath
-      }
+      bip39.setDefaultWordlist(this.language)
+      const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
+      const mnemonic = bip39.generateMnemonic(strength)
+      const seed = bip39.mnemonicToSeedSync(mnemonic)
+      const node = bip32.fromSeed(seed)
+      const derivedPath = node.derivePath(this.derivationPath)
+      this.mnemonic = mnemonic
+      this.seed = seed.toString('hex')
+      this.bip32node = node
+      this.derivedPath = derivedPath
     },
     updateDerivationPath () {
       this.derivedPath = this.bip32node.derivePath(this.derivationPath)

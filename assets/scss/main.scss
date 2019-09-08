@@ -28,6 +28,10 @@ $body-background-color: #f9f9f9cc;
   margin-bottom: 15px;
 }
 
+.main-content {
+  min-height: 400px;
+}
+
 // Import Bulma and Buefy styles
 @import "~bulma";
 @import "~buefy/src/scss/buefy";

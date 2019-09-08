@@ -39,13 +39,6 @@
         </b-field>
       </b-field>
     </b-field>
-    <b-field v-if="entropyHash" grouped>
-      <p class="control spacer">
-        <b-button type="is-primary is-medium is-outlined" @click="generateMnemonic">
-          Generate Mnemonic
-        </b-button>
-      </p>
-    </b-field>
   </div>
 </template>
 
