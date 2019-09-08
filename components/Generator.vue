@@ -84,12 +84,19 @@
           <div class="column has-text-left">
             <b-tabs class="block" type="is-boxed">
               <b-tab-item label="Mnemonic">
+                <b-field label="Shortened">
+                  <b-switch
+                    v-model="isShortened"
+                  >
+                    {{ isShortened }}
+                  </b-switch>
+                </b-field>
                 <b-field>
                   <b-field
                     :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
-                    :message="mnemonic ? validMnemonic ? 'valid': 'invalid' : ''"
+                    :message="(mnemonic ? validMnemonic ? 'valid ' + '(' + displayedMnemonic.length + ')': 'invalid ' + '(' + displayedMnemonic.length + ')' : '') "
                   >
-                    <b-input v-model="mnemonic" type="textarea" expanded />
+                    <b-input v-model="displayedMnemonic" type="textarea" expanded />
                   </b-field>
                 </b-field>
               </b-tab-item>
@@ -172,6 +179,15 @@ import * as bip39 from 'bip39'
 import * as slip39 from 'slip39/src/slip39'
 import * as bip32 from 'bip32'
 
+const lpad = (str, padString, length) => {
+  while (str.length < length) { str = padString + str }
+  return str
+}
+
+const shortenMnemonic = (mnemonic) => {
+  return mnemonic.split(' ').map(v => v.substr(0, 4)).join(' ')
+}
+
 export default {
   name: 'Generator',
   components: {
@@ -179,6 +195,7 @@ export default {
   data () {
     return {
       isOnline: true,
+      isShortened: false,
       language: 'english',
       words: 24,
       mnemonic: null,
@@ -202,6 +219,9 @@ export default {
         valid = false
       }
       return valid
+    },
+    displayedMnemonic () {
+      return this.isShortened ? shortenMnemonic(this.mnemonic) : this.mnemonic
     }
   },
   created () {
@@ -222,19 +242,16 @@ export default {
       const threshold = 2
       let baseMnemonic = this.mnemonic.toString()
       let paddedSecret = baseMnemonic.encodeHex()
-      let byteSize = new Blob([paddedSecret]).size
-      console.log(new Blob([paddedSecret]))
-      while (byteSize % 2 !== 0) {
-        baseMnemonic = baseMnemonic + ' '
+      if (baseMnemonic.length % 2 !== 0) {
+        const evenLength = 2 * Math.round(baseMnemonic.length / 2)
+        baseMnemonic = lpad(baseMnemonic, ' ', evenLength)
         paddedSecret = baseMnemonic.encodeHex()
-        byteSize = new Blob([paddedSecret]).size
-        console.log(byteSize)
-        console.log('padding empty space')
+        alert('padded to length ' + evenLength)
       }
 
       const masterSecret = paddedSecret
-      byteSize = new Blob([paddedSecret]).size
-      console.log('master' + byteSize)
+      // mnemonicLength = new Blob([paddedSecret]).size
+      // console.log('master' + mnemonicLength)
       const passphrase = ''
 
       const groups = [
