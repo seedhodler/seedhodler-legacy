@@ -84,11 +84,11 @@
           <div class="column has-text-left">
             <b-tabs class="block" type="is-boxed">
               <b-tab-item label="Mnemonic">
-                <b-field label="Shortened">
+                <b-field label="Use shortened mnemonic">
                   <b-switch
-                    v-model="isShortened"
+                    v-model="useShortMnemonic"
                   >
-                    {{ isShortened }}
+                    {{ useShortMnemonic }}
                   </b-switch>
                 </b-field>
                 <b-field>
@@ -163,7 +163,7 @@
           <div v-if="recoveredSecret" class="column has-text-left">
             <b-message
               title="Recovered Mnemonic"
-              :type="recoveredSecret === mnemonic ? 'is-success': 'is-danger'"
+              :type="recoveredSecret === mnemonic || recoveredSecret === displayedMnemonic ? 'is-success': 'is-danger'"
             >
               {{ recoveredSecret }}
             </b-message>
@@ -188,6 +188,21 @@ const shortenMnemonic = (mnemonic) => {
   return mnemonic.split(' ').map(v => v.substr(0, 4)).join(' ')
 }
 
+const shortWordToOriginal = (language, shortWord) => {
+  let mappedWord = '[invalid-short-word]'
+  for (const word of bip39.wordlists[language]) {
+    if (word.startsWith(shortWord)) {
+      mappedWord = word
+      break
+    }
+  }
+  return mappedWord
+}
+
+const shortMnemonicToOriginal = (language, shortMnemonic) => {
+  return shortMnemonic.split(' ').map(shortWord => shortWordToOriginal(language, shortWord)).join(' ')
+}
+
 export default {
   name: 'Generator',
   components: {
@@ -195,10 +210,11 @@ export default {
   data () {
     return {
       isOnline: true,
-      isShortened: false,
+      useShortMnemonic: false,
       language: 'english',
       words: 24,
       mnemonic: null,
+      shortMnemonic: null,
       seed: null,
       bip32node: null,
       recoveredSecret: null,
@@ -209,7 +225,15 @@ export default {
   },
   computed: {
     validMnemonic () {
-      return bip39.validateMnemonic(this.mnemonic)
+      if (this.mnemonic && this.shortMnemonic) {
+        if (this.useShortMnemonic) {
+          const reconstructed = shortMnemonicToOriginal(this.language, this.shortMnemonic)
+          return bip39.validateMnemonic(reconstructed)
+        } else {
+          return bip39.validateMnemonic(this.mnemonic)
+        }
+      }
+      return false
     },
     validDerivationPath () {
       let valid = true
@@ -220,8 +244,19 @@ export default {
       }
       return valid
     },
-    displayedMnemonic () {
-      return this.isShortened ? shortenMnemonic(this.mnemonic) : this.mnemonic
+    displayedMnemonic: {
+      get () {
+        return this.useShortMnemonic ? this.shortMnemonic : this.mnemonic
+      },
+      set (val) {
+        if (this.useShortMnemonic) {
+          this.shortMnemonic = val
+          this.mnemonic = shortMnemonicToOriginal(this.language, val)
+        } else {
+          this.mnemonic = val
+          this.shortMnemonic = shortenMnemonic(val)
+        }
+      }
     }
   },
   created () {
@@ -240,18 +275,15 @@ export default {
   methods: {
     slip39 () {
       const threshold = 2
-      let baseMnemonic = this.mnemonic.toString()
+      let baseMnemonic = this.useShortMnemonic ? this.shortMnemonic.toString() : this.mnemonic.toString()
       let paddedSecret = baseMnemonic.encodeHex()
       if (baseMnemonic.length % 2 !== 0) {
         const evenLength = 2 * Math.round(baseMnemonic.length / 2)
         baseMnemonic = lpad(baseMnemonic, ' ', evenLength)
         paddedSecret = baseMnemonic.encodeHex()
-        alert('padded to length ' + evenLength)
       }
 
       const masterSecret = paddedSecret
-      // mnemonicLength = new Blob([paddedSecret]).size
-      // console.log('master' + mnemonicLength)
       const passphrase = ''
 
       const groups = [
@@ -279,7 +311,6 @@ export default {
       this.allShares = aliceShare.concat(familyShares)
 
       const recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
-      console.log(recoveredSecret)
       this.recoveredSecret = recoveredSecret.decodeHex().trim()
     },
     checkOnlineStatus () {
@@ -289,10 +320,12 @@ export default {
       bip39.setDefaultWordlist(this.language)
       const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
       const mnemonic = bip39.generateMnemonic(strength)
+      const shortMnemonic = shortenMnemonic(mnemonic)
       const seed = bip39.mnemonicToSeedSync(mnemonic)
       const node = bip32.fromSeed(seed)
       const derivedPath = node.derivePath(this.derivationPath)
       this.mnemonic = mnemonic
+      this.shortMnemonic = shortMnemonic
       this.seed = seed.toString('hex')
       this.bip32node = node
       this.derivedPath = derivedPath
