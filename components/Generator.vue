@@ -69,6 +69,20 @@
                       </option>
                     </b-select>
                   </b-field>
+                  <b-field label="Threshold">
+                    <b-numberinput v-model="threshold" controls-position="compact" :controls-rounded="true" min="1" :max="groupTags.length" />
+                  </b-field>
+                  <b-field>
+                    <b-field label="Share Groups (threshold/shares)">
+                      <b-taginput
+                        v-model="groupTags"
+                        icon="label"
+                        placeholder="Add group e.g 4/5"
+                        :before-adding="validateShareGroup"
+                      />
+                    </b-field>
+                    </b-taginput>
+                  </b-field>
                 </b-field>
                 <b-field grouped>
                   <p class="control spacer">
@@ -76,6 +90,7 @@
                       Generate Mnemonic
                     </b-button>
                   </p>
+                </b-field>
                 </b-field>
               </div>
             </b-tab-item>
@@ -155,11 +170,13 @@
               </b-button>
             </b-field>
           </div>
-          <div v-for="share in allShares" :key="share" class="column has-text-left">
-            <b-message class="column is-full spacer">
-              {{ share }}
-            </b-message>
-          </div>
+          <b-tabs type="is-boxed">
+            <b-tab-item v-for="share in allShares" :key="share" v-model="activeTab" :label="'Group ' + share.index + ' (' + share.threshold + '/' + share.shares + ')'">
+              <b-message v-for="shareMnemonic in share.mnemonicShares" :key="shareMnemonic" class="column is-full spacer">
+                {{ shareMnemonic }}
+              </b-message>
+            </b-tab-item>
+          </b-tabs>
           <div v-if="recoveredSecret" class="column has-text-left">
             <b-message
               title="Recovered Mnemonic"
@@ -220,7 +237,12 @@ export default {
       recoveredSecret: null,
       allShares: null,
       derivationPath: 'm/0\'/0/0',
-      derivedPath: null
+      derivedPath: null,
+      passphrase: '',
+      threshold: 1,
+      groupTags: [
+        '2/3'
+      ]
     }
   },
   computed: {
@@ -273,8 +295,25 @@ export default {
     }
   },
   methods: {
+    validateShareGroup (tag) {
+      const parts = tag.split('/')
+      const threshold = parts[0]
+      const shares = parts[1]
+      const isAlNumbers = parts.every(n => Number.isInteger(++n))
+      const thresholdLowerThanShares = threshold <= shares
+      const thresholdValid = threshold > 0 && threshold < 7
+      const sharesValid = shares >= threshold && shares < 7
+      return parts && parts.length === 2 && isAlNumbers && thresholdLowerThanShares && thresholdValid && sharesValid
+    },
     slip39 () {
-      const threshold = 2
+      const threshold = this.threshold
+      const groups = this.groupTags.map(tag => tag.split('/').map(n => parseInt(n)))
+
+      console.log(groups)
+      console.log(threshold)
+
+      const passphrase = this.passphrase
+
       let baseMnemonic = this.useShortMnemonic ? this.shortMnemonic.toString() : this.mnemonic.toString()
       let paddedSecret = baseMnemonic.encodeHex()
       if (baseMnemonic.length % 2 !== 0) {
@@ -284,18 +323,6 @@ export default {
       }
 
       const masterSecret = paddedSecret
-      const passphrase = ''
-
-      const groups = [
-        // Alice group shares. 1 is enough to reconstruct a group share,
-        // therefore she needs at least two group shares to reconstruct the master secret.
-        [1, 1],
-        [1, 1],
-        // 3 of 5 Friends' shares are required to reconstruct this group share
-        [3, 5],
-        // 2 of 6 Family's shares are required to reconstruct this group share
-        [2, 6]
-      ]
 
       const slip = slip39.fromArray(masterSecret, {
         passphrase,
@@ -303,15 +330,27 @@ export default {
         groups
       })
 
-      const aliceShare = slip.fromPath('r/0').mnemonics
+      const shares = groups.map((group, i) => {
+        return {
+          index: i,
+          threshold: group[0],
+          shares: group[1],
+          mnemonicShares: slip.fromPath('r/' + i).mnemonics
+        }
+      })
 
-      const familyShares = slip.fromPath('r/3/1').mnemonics
-        .concat(slip.fromPath('r/3/3').mnemonics)
+      console.log(shares)
+      // const aliceShare = slip.fromPath('r/0').mnemonics
 
-      this.allShares = aliceShare.concat(familyShares)
+      // const familyShares = slip.fromPath('r/3/1').mnemonics
+      //   .concat(slip.fromPath('r/3/3').mnemonics)
 
-      const recoveredSecret = slip39.recoverSecret(this.allShares, passphrase)
-      this.recoveredSecret = recoveredSecret.decodeHex().trim()
+      this.allShares = shares
+
+      // const recoveryParts = [shares[0], shares[1], shares[2]]
+
+      // const recoveredSecret = slip39.recoverSecret(recoveryParts, passphrase)
+      // this.recoveredSecret = recoveredSecret.decodeHex().trim()
     },
     checkOnlineStatus () {
       this.isOnline = navigator.onLine
