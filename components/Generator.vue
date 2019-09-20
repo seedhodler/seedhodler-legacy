@@ -77,6 +77,7 @@
                       <b-taginput
                         v-model="groupTags"
                         icon="label"
+                        :allow-duplicates="true"
                         placeholder="Add group e.g 4/5"
                         :before-adding="validateShareGroup"
                       />
