@@ -17,10 +17,7 @@
         GitHub (Source)
       </a>
       <b-navbar-item tag="router-link" :to="{ name: 'index' }">
-        Generate
-      </b-navbar-item>
-      <b-navbar-item tag="router-link" :to="{ name: 'restore' }">
-        Restore
+        Generate or Restore
       </b-navbar-item>
     </template>
   </b-navbar>

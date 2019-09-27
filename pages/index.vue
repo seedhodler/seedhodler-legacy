@@ -1,11 +1,11 @@
 <template>
   <section class="section">
     <h1 class="page-heading">
-      Generate
+      Generate or Restore
     </h1>
-    <h2 class="page-subtitle spacer">
-      Easily generate and split your Mnemonic Seed into Shamir Shares
-    </h2>
+    <h3 class="page-subtitle spacer">
+      Easily split or restore your seed recovery phrase
+    </h3>
     <div class="is-mobile">
       <generator />
     </div>
