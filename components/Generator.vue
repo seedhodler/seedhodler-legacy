@@ -1,181 +1,219 @@
 <template>
   <div>
-    <b-message type="is-danger" has-icon>
+    <b-message size="is-small" type="is-danger" has-icon>
       You are currently <em>online</em>. This tool should only be used when you're offline
     </b-message>
 
     <div class="card">
       <div class="card-content">
-        <div class="content">
-          <div v-if="isOnline" class="column is-full" />
-          <div class="column">
-            <b-tabs size="is-medium" position="is-left" class="block">
-              <b-tab-item icon="pencil" label="Generate">
-                <div class="column has-text-left">
-                  <b-field horizontal label="Language">
-                    <b-select v-model="language">
-                      <option title="English" value="english">
-                        English
-                      </option>
-                      <option title="French" value="french">
-                        Français
-                      </option>
-                      <option title="Spanish" value="spanish">
-                        Spanish
-                      </option>
-                      <option title="Italian" value="italian">
-                        Italian
-                      </option>
-                      <option title="Japanese" value="japanese">
-                        Japanese
-                      </option>
-                      <option title="Korean" value="korean">
-                        Korean
-                      </option>
-                      <option title="Chinese Simplified" value="chinese_simplified">
-                        Chinese (Simplified)
-                      </option>
-                      <option title="Chinese Traditional" value="chinese_traditional">
-                        Chinese (Traditional)
-                      </option>
-                    </b-select>
+        <b-tabs position="is-left" expanded>
+          <b-tab-item class="spacer-top-md" icon="pencil" label="Generate">
+            <h6 class="subtitle">
+              1. Phrase
+            </h6>
+            <b-field grouped>
+              <b-field label-position="on-border" label="Language">
+                <b-select v-model="language">
+                  <option title="English" value="english">
+                    English
+                  </option>
+                  <option title="French" value="french">
+                    Français
+                  </option>
+                  <option title="Spanish" value="spanish">
+                    Spanish
+                  </option>
+                  <option title="Italian" value="italian">
+                    Italian
+                  </option>
+                  <option title="Japanese" value="japanese">
+                    Japanese
+                  </option>
+                  <option title="Korean" value="korean">
+                    Korean
+                  </option>
+                  <option title="Chinese Simplified" value="chinese_simplified">
+                    Chinese (Simplified)
+                  </option>
+                  <option title="Chinese Traditional" value="chinese_traditional">
+                    Chinese (Traditional)
+                  </option>
+                </b-select>
+              </b-field>
+
+              <b-field label-position="on-border" label="Words">
+                <b-select v-model="words">
+                  <option title="24" value="24">
+                    24
+                  </option>
+                  <option title="21" value="21">
+                    21
+                  </option>
+                  <option title="18" value="18">
+                    18
+                  </option>
+                  <option title="15" value="15">
+                    15
+                  </option>
+
+                  <option title="12" value="12">
+                    12
+                  </option>
+                </b-select>
+                <b-field />
+                <b-field>
+                  <b-button type="is-primary" outlined @click="generateMnemonic">
+                    Generate
+                  </b-button>
+                </b-field>
+              </b-field>
+            </b-field>
+
+            <b-tabs size="is-small" class="spacer-top-md" expanded>
+              <b-tab-item>
+                <template slot="header">
+                  <b-icon icon="circle-edit-outline" />
+                  <span> Phrase <b-tag rounded> BIP 39 </b-tag> </span>
+                </template>
+                <b-field
+                  :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
+                  :message="(mnemonic ? validMnemonic ? 'valid ' + '(' + displayedMnemonic.length + ')': 'invalid ' + '(' + displayedMnemonic.length + ')' : '') "
+                >
+                  <b-input v-model="displayedMnemonic" type="textarea" expanded />
+                </b-field>
+                <b-field position="is-right">
+                  <b-switch
+                    v-model="shortenMnemonic"
+                    :rounded="false"
+                    :outlined="false"
+                    size="is-small"
+                    type="is-primary"
+                  >
+                    Shorten
+                  </b-switch>
+                </b-field>
+              </b-tab-item>
+              <b-tab-item>
+                <template slot="header">
+                  <b-icon icon="call-split" />
+                  <span> Derivation <b-tag rounded> BIP 32 </b-tag> </span>
+                </template>
+                <div v-if="bip32node" class="column">
+                  <b-field label="Key Info: (Node Public Key)">
+                    <b-input :value="bip32node.publicKey.toString('hex')" expanded />
                   </b-field>
-
-                  <b-field horizontal label="Words">
-                    <b-select v-model="words">
-                      <option title="24" value="24">
-                        24
-                      </option>
-                      <option title="21" value="21">
-                        21
-                      </option>
-                      <option title="18" value="18">
-                        18
-                      </option>
-                      <option title="15" value="15">
-                        15
-                      </option>
-
-                      <option title="12" value="12">
-                        12
-                      </option>
-                    </b-select>
+                  <b-field label="Key Info: Depth">
+                    <b-input :value="bip32node.depth" expanded />
                   </b-field>
-
-                  <b-field horizontal label="Threshold">
-                    <b-numberinput v-model="threshold" controls-position="compact" :controls-rounded="true" min="1" :max="groupTags.length" />
+                  <b-field label="Key Info: Index">
+                    <b-input :value="bip32node.index" expanded />
                   </b-field>
-
-                  <b-field horizontal label="Share Groups (threshold/shares)">
-                    <b-taginput
-                      v-model="groupTags"
-                      icon="label"
-                      :allow-duplicates="true"
-                      placeholder="Add group e.g 4/5"
-                      :before-adding="validateShareGroup"
-                    />
+                  <b-field label="Key Info: Identifier">
+                    <b-input :value="bip32node.identifier.toString('hex')" expanded />
                   </b-field>
-
-                  <b-field horizontal label="Use short form">
-                    <b-switch
-                      v-model="useShortMnemonic"
-                    />
+                  <b-field v-if="bip32node.parentFingerprint" label="Key Info: Parent Fingerprint">
+                    <b-input :value="bip32node.parentFingerprint.toString('hex')" expanded />
                   </b-field>
-
-                  <b-field horizontal>
-                    <b-button type="is-primary is-medium" @click="generateMnemonic">
-                      Generate
-                    </b-button>
+                  <b-field label="Key Info: Parent Fingerprint">
+                    <b-input :value="bip32node.fingerprint.toString('hex')" expanded />
                   </b-field>
-
-                  <b-tabs>
-                    <b-tab-item icon="seed" label="Seed Phrase (BIP 39)">
-                      <b-field>
-                        <b-field
-                          :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
-                          :message="(mnemonic ? validMnemonic ? 'valid ' + '(' + displayedMnemonic.length + ')': 'invalid ' + '(' + displayedMnemonic.length + ')' : '') "
-                        >
-                          <b-input v-model="displayedMnemonic" type="textarea" expanded />
-                        </b-field>
-                      </b-field>
-                    </b-tab-item>
-                    <b-tab-item label="Derivation (BIP 32)">
-                      <div v-if="bip32node" class="column">
-                        <b-field label="Key Info: (Node Public Key)">
-                          <b-input :value="bip32node.publicKey.toString('hex')" expanded />
-                        </b-field>
-                        <b-field label="Key Info: Depth">
-                          <b-input :value="bip32node.depth" expanded />
-                        </b-field>
-                        <b-field label="Key Info: Index">
-                          <b-input :value="bip32node.index" expanded />
-                        </b-field>
-                        <b-field label="Key Info: Identifier">
-                          <b-input :value="bip32node.identifier.toString('hex')" expanded />
-                        </b-field>
-                        <b-field v-if="bip32node.parentFingerprint" label="Key Info: Parent Fingerprint">
-                          <b-input :value="bip32node.parentFingerprint.toString('hex')" expanded />
-                        </b-field>
-                        <b-field label="Key Info: Parent Fingerprint">
-                          <b-input :value="bip32node.fingerprint.toString('hex')" expanded />
-                        </b-field>
-                        <b-field label="Key Info: (Node Private Key)">
-                          <b-input :value="bip32node.privateKey.toString('hex')" expanded />
-                        </b-field>
-                      </div>
-                      <div v-if="derivedPath" class="column">
-                        <b-field
-                          horizontal
-                          :type="validDerivationPath ? 'is-success' : 'is-warning'"
-                          :message="validDerivationPath ? 'valid path' : 'invalid path'"
-                          label="Path"
-                        >
-                          <b-input v-model="derivationPath" />
-                          <p class="control">
-                            <b-button :disabled="!validDerivationPath" type="is-success" @click="updateDerivationPath">
-                              derive
-                            </b-button>
-                          </p>
-                        </b-field>
-                        <b-field label="Private Key (WIF)">
-                          <b-input :value="derivedPath.toWIF()" expanded />
-                        </b-field>
-                        <b-field label="Derived Private Key">
-                          <b-input :value="derivedPath.toBase58()" expanded />
-                        </b-field>
-                      </div>
-                    </b-tab-item>
-                  </b-tabs>
-                  <div v-if="mnemonic" class="column has-text-left">
-                    <b-field>
-                      <b-button type="is-primary is-medium is-outlined" @click="slip39">
-                        Split
+                  <b-field label="Key Info: (Node Private Key)">
+                    <b-input :value="bip32node.privateKey.toString('hex')" expanded />
+                  </b-field>
+                </div>
+                <div v-if="derivedPath" class="column">
+                  <b-field
+                    horizontal
+                    :type="validDerivationPath ? 'is-success' : 'is-warning'"
+                    :message="validDerivationPath ? 'valid path' : 'invalid path'"
+                    label="Path"
+                  >
+                    <b-input v-model="derivationPath" />
+                    <p class="control">
+                      <b-button :disabled="!validDerivationPath" type="is-success" @click="updateDerivationPath">
+                        derive
                       </b-button>
-                    </b-field>
-                  </div>
-                  <b-tabs type="is-boxed">
-                    <b-tab-item v-for="share in allShares" :key="share" v-model="activeTab" :label="'Group ' + share.index + ' (' + share.threshold + '/' + share.shares + ')'">
-                      <b-message v-for="shareMnemonic in share.mnemonicShares" :key="shareMnemonic" class="column is-full spacer">
-                        {{ shareMnemonic }}
-                      </b-message>
-                    </b-tab-item>
-                  </b-tabs>
-                  <div v-if="recoveredSecret" class="column has-text-left">
-                    <b-message
-                      title="Recovered Seed Phrase"
-                      :type="recoveredSecret === mnemonic || recoveredSecret === displayedMnemonic ? 'is-success': 'is-danger'"
-                    >
-                      {{ recoveredSecret }}
-                    </b-message>
-                  </div>
+                    </p>
+                  </b-field>
+                  <b-field label="Private Key (WIF)">
+                    <b-input :value="derivedPath.toWIF()" expanded />
+                  </b-field>
+                  <b-field label="Derived Private Key">
+                    <b-input :value="derivedPath.toBase58()" expanded />
+                  </b-field>
                 </div>
               </b-tab-item>
-              <b-tab-item icon="backup-restore" label="Restore">
-                <p>Under Construction</p>
-              </b-tab-item>
             </b-tabs>
-          </div>
-        </div>
+            <template v-if="mnemonic">
+              <h6 class="subtitle">
+                2. Configure
+              </h6>
+              <b-field position="is-right">
+                <b-button size="is-small" type="is-text" @click="addGroup">
+                  Add Group
+                </b-button>
+              </b-field>
+              <b-field v-for="(threshold, index) in thresholds" :key="index" grouped>
+                <b-field label-position="on-border" :label="`G${index}: Threshold`">
+                  <b-numberinput
+                    v-model="thresholds[index]"
+                    type="is-info"
+                    controls-position="compact"
+                    size="is-small"
+                    min="1"
+                    :max="shareGroups[index]"
+                  />
+                </b-field>
+                <b-field label-position="on-border" label="Total Shares">
+                  <b-numberinput
+                    v-model="shareGroups[index]"
+                    controls-position="compact"
+                    size="is-small"
+                    type="is-info"
+                    :min="thresholds[index]"
+                    :max="6"
+                  />
+                </b-field>
+              </b-field>
+              <b-field>
+                <b-button type="is-primary is-outlined" @click="slip39">
+                  Split
+                </b-button>
+              </b-field>
+            </template>
+            <template v-if="allShares">
+              <h6 class="subtitle spacer-top-lg">
+                3. Share Groups
+              </h6>
+              <b-tabs class="spacer-top=lg">
+                <b-tab-item v-for="share in allShares" :key="share" v-model="activeTab">
+                  <template slot="header">
+                    <b-icon :icon="`numeric-${share.index}-box-multiple-outline`" />
+                    <span><b-tag rounded> {{ share.threshold }}/{{ share.shares }} </b-tag> </span>
+                  </template>
+                  <b-message v-for="shareMnemonic in share.mnemonicShares" :key="shareMnemonic" class="column is-full spacer">
+                    {{ shareMnemonic }}
+                  </b-message>
+                </b-tab-item>
+              </b-tabs>
+            </template>
+            <div v-if="recoveredSecret" class="column has-text-left">
+              <b-message
+                title="Recovered Seed Phrase"
+                :type="recoveredSecret === mnemonic || recoveredSecret === displayedMnemonic ? 'is-success': 'is-danger'"
+              >
+                {{ recoveredSecret }}
+              </b-message>
+            </div>
+            </b-field>
+            </b-field>
+          </b-tab-item>
+          <b-tab-item icon="backup-restore" label="Restore">
+            <b-message title="Under construction" size="is-small" type="is-warning" has-icon aria-close-label="Close">
+              Restoring from shares is still under construction
+            </b-message>
+          </b-tab-item>
+        </b-tabs>
       </div>
     </div>
   </div>
@@ -217,7 +255,7 @@ export default {
   data () {
     return {
       isOnline: true,
-      useShortMnemonic: false,
+      shortenMnemonic: false,
       language: 'english',
       words: 24,
       mnemonic: null,
@@ -229,16 +267,14 @@ export default {
       derivationPath: 'm/0\'/0/0',
       derivedPath: null,
       passphrase: '',
-      threshold: 1,
-      groupTags: [
-        '2/3'
-      ]
+      thresholds: [3],
+      shareGroups: [5]
     }
   },
   computed: {
     validMnemonic () {
       if (this.mnemonic && this.shortMnemonic) {
-        if (this.useShortMnemonic) {
+        if (this.shortenMnemonic) {
           const reconstructed = shortMnemonicToOriginal(this.language, this.shortMnemonic)
           return bip39.validateMnemonic(reconstructed)
         } else {
@@ -258,10 +294,10 @@ export default {
     },
     displayedMnemonic: {
       get () {
-        return this.useShortMnemonic ? this.shortMnemonic : this.mnemonic
+        return this.shortenMnemonic ? this.shortMnemonic : this.mnemonic
       },
       set (val) {
-        if (this.useShortMnemonic) {
+        if (this.shortenMnemonic) {
           this.shortMnemonic = val
           this.mnemonic = shortMnemonicToOriginal(this.language, val)
         } else {
@@ -285,26 +321,22 @@ export default {
     }
   },
   methods: {
-    validateShareGroup (tag) {
-      const parts = tag.split('/')
-      const threshold = parts[0]
-      const shares = parts[1]
-      const isAlNumbers = parts.every(n => Number.isInteger(++n))
-      const thresholdLowerThanShares = threshold <= shares
-      const thresholdValid = threshold > 0 && threshold < 7
-      const sharesValid = shares >= threshold && shares < 7
-      return parts && parts.length === 2 && isAlNumbers && thresholdLowerThanShares && thresholdValid && sharesValid
+    addGroup () {
+      if (this.thresholds.length < 6) {
+        this.thresholds.push(3)
+        this.shareGroups.push(5)
+      }
     },
     slip39 () {
       const threshold = this.threshold
-      const groups = this.groupTags.map(tag => tag.split('/').map(n => parseInt(n)))
+      const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
 
       console.log(groups)
       console.log(threshold)
 
       const passphrase = this.passphrase
 
-      let baseMnemonic = this.useShortMnemonic ? this.shortMnemonic.toString() : this.mnemonic.toString()
+      let baseMnemonic = this.shortenMnemonic ? this.shortMnemonic.toString() : this.mnemonic.toString()
       let paddedSecret = baseMnemonic.encodeHex()
       if (baseMnemonic.length % 2 !== 0) {
         const evenLength = 2 * Math.round(baseMnemonic.length / 2)
@@ -376,4 +408,13 @@ export default {
    margin-top: 10px;
    height: 4px;
  }
+
+ .spacer-top-lg {
+   margin-top: 40px;
+ }
+
+  .spacer-top-md {
+   margin-top: 20px;
+ }
+
 </style>
