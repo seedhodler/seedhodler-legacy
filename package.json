@@ -24,7 +24,7 @@
     "nuxt": "^2.9.2",
     "nuxt-buefy": "^0.3.14",
     "push-dir": "^0.4.1",
-    "slip39": "^0.1.5-dev.1",
+    "slip39": "git+ssh://git@github.com/ilap/slip39-js",
     "utf8": "^3.0.0"
   },
   "devDependencies": {
