@@ -70,7 +70,7 @@ export default {
   components: {
   },
   props: {
-    seed: String
+    seed: Uint8Array
   },
   data () {
     return {

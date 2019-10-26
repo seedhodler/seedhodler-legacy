@@ -130,7 +130,7 @@
         </table>
       </b-field>
       <b-field class="spacer-top-lg">
-        <b-button size="is-medium" type="is-primary is-outlined" @click="slip39">
+        <b-button size="is-medium" type="is-primary is-outlined" @click="generateShares">
           Split
         </b-button>
       </b-field>
@@ -140,15 +140,14 @@
         3. Share Groups
       </h6>
       <b-tabs class="spacer-top=lg">
-        <b-tab-item v-for="(share, groupIndex) in allShares" :key="share" v-model="activeTab">
+        <b-tab-item v-for="(share, groupIndex) in allShares" :key="groupIndex">
           <template slot="header">
-            <b-icon :icon="`numeric-${share.index}-box-multiple-outline`" />
-            <span><b-tag rounded> {{ share.threshold }}/{{ share.shares }} </b-tag> </span>
+            <span><b-tag rounded> {{ share.groupName }} [{{ share.threshold }}/{{ share.shares }}] </b-tag> </span>
           </template>
           <div class="table-container">
             <table class="table is-fullwidth is-striped is-bordered">
               <thead>
-                <th>Group {{ groupIndex }}</th>
+                <th>Group</th>
                 <th>Share</th>
                 <th />
               </thead>
@@ -197,34 +196,11 @@
 </template>
 
 <script>
-import * as bip39 from 'bip39'
-import * as slip39 from 'slip39/src/slip39'
 
 import NodeInfo from '~/components/NodeInfo'
-
-const lpad = (str, padString, length) => {
-  while (str.length < length) { str = padString + str }
-  return str
-}
-
-const shortenMnemonic = (mnemonic) => {
-  return mnemonic.split(' ').map(v => v.substr(0, 4)).join(' ')
-}
-
-const shortWordToOriginal = (language, shortWord) => {
-  let mappedWord = '[invalid-short-word]'
-  for (const word of bip39.wordlists[language]) {
-    if (word.startsWith(shortWord)) {
-      mappedWord = word
-      break
-    }
-  }
-  return mappedWord
-}
-
-const shortMnemonicToOriginal = (language, shortMnemonic) => {
-  return shortMnemonic.split(' ').map(shortWord => shortWordToOriginal(language, shortWord)).join(' ')
-}
+import { shortenMnemonic, shortMnemonicToOriginal, generateMnemonic, validateMnemonic, mnemonicToSeed, mnemonicToEntropy } from '~/helpers/bip39utils'
+import { getFormattedShares, shareGroupName } from '~/helpers/slip39utils'
+import { copyInputToClipboard } from '~/helpers/browserUtils'
 
 export default {
   name: 'Generator',
@@ -241,6 +217,7 @@ export default {
       recoveredSecret: null,
       allShares: null,
       passphrase: '',
+      masterThreshold: 1,
       thresholds: [3],
       shareGroups: [5]
     }
@@ -250,9 +227,9 @@ export default {
       if (this.mnemonic && this.shortMnemonic) {
         if (this.shortenMnemonic) {
           const reconstructed = shortMnemonicToOriginal(this.language, this.shortMnemonic)
-          return bip39.validateMnemonic(reconstructed)
+          return validateMnemonic(reconstructed)
         } else {
-          return bip39.validateMnemonic(this.mnemonic)
+          return validateMnemonic(this.mnemonic)
         }
       }
       return false
@@ -272,7 +249,7 @@ export default {
       }
     },
     seed () {
-      return bip39.mnemonicToSeedSync(this.mnemonic)
+      return mnemonicToSeed(this.mnemonic)
     }
   },
   methods: {
@@ -288,45 +265,21 @@ export default {
         this.shareGroups.splice(index, 1)
       }
     },
-    slip39 () {
-      const threshold = this.threshold
+    generateShares () {
       const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
       const passphrase = this.passphrase
-      const masterSecret = bip39.mnemonicToEntropy(this.mnemonic).encodeHex()
-
-      const slip = slip39.fromArray(masterSecret, {
-        passphrase,
-        threshold,
-        groups
-      })
-
-      const shares = groups.map((group, i) => {
-        return {
-          index: i,
-          threshold: group[0],
-          shares: group[1],
-          mnemonicShares: slip.fromPath('r/' + i).mnemonics
-        }
-      })
-
-      this.allShares = shares
+      const masterSecret = mnemonicToEntropy(this.mnemonic).encodeHex()
+      this.allShares = getFormattedShares(masterSecret, passphrase, this.masterThreshold, groups)
     },
     generateMnemonic () {
-      bip39.setDefaultWordlist(this.language)
-
-      // Words to bits
-      const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
-      this.mnemonic = bip39.generateMnemonic(strength)
+      this.mnemonic = generateMnemonic(this.language, this.words)
       this.shortMnemonic = shortenMnemonic(this.mnemonic)
     },
     wordCount (str) {
       return str.split(' ').length
     },
     copyToClipboard (elementId) {
-      const copyText = document.getElementById(elementId)
-      copyText.select()
-      copyText.setSelectionRange(0, 99999)
-      document.execCommand('copy')
+      copyInputToClipboard(elementId)
       const [ sharetext, group, share ] = elementId.split('-')
       this.$buefy.snackbar.open(`Copied share ${share} from group ${group}`)
     }
@@ -336,37 +289,4 @@ export default {
 </script>
 
 <style>
- .entropy-display {
-   font-size: 0.5em;
- }
-
- .progress {
-   margin-top: 10px;
-   height: 4px;
- }
-
- .spacer-top-lg {
-   margin-top: 40px;
- }
-
-  .spacer-top-md {
-   margin-top: 20px;
- }
-
-  .is-copy-button {
-    background-color: transparent;
-    color: inherit;
-    border: none;
-  }
-
-  .is-copy-button:hover {
-    background-color: transparent;
-    color: rgb(20, 150, 237);
-    border: none;
-  }
-
-  .share-textarea {
-    background: transparent;
-    border: none;
-  }
 </style>

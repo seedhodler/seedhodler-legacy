@@ -10,12 +10,12 @@
 
     <div class="card">
       <div class="card-content">
-        <b-tabs position="is-left" expanded>
+        <b-tabs position="is-left" expanded @input="restoreSelected">
           <b-tab-item class="spacer-top-md" icon="pencil" label="Generate">
             <Generator />
           </b-tab-item>
           <b-tab-item icon="backup-restore" label="Restore">
-            <Restore />
+            <Restore ref="restore" />
           </b-tab-item>
         </b-tabs>
       </div>
@@ -35,6 +35,13 @@ export default {
     Generator,
     OnlineCheck,
     Restore
+  },
+  methods: {
+    restoreSelected (activeTabIndex) {
+      if (activeTabIndex === 1) {
+        this.$refs.restore.focusAddShareInput()
+      }
+    }
   }
 }
 </script>
