@@ -38,15 +38,15 @@
           <option title="24" value="24">
             24
           </option>
-          <option title="21" value="21">
+          <!-- <option title="21" value="21">
             21
-          </option>
+          </option> -->
           <option title="18" value="18">
             18
           </option>
-          <option title="15" value="15">
+          <!-- <option title="15" value="15">
             15
-          </option>
+          </option> -->
 
           <option title="12" value="12">
             12
@@ -142,6 +142,9 @@
           </template>
           <b-message v-for="shareMnemonic in share.mnemonicShares" :key="shareMnemonic" class="column is-full spacer">
             {{ shareMnemonic }}
+            <small>
+              {{ shareMnemonic.split(" ").length }}
+            </small>
           </b-message>
         </b-tab-item>
       </b-tabs>
@@ -196,7 +199,7 @@ export default {
     return {
       shortenMnemonic: false,
       language: 'english',
-      words: 24,
+      words: 12,
       mnemonic: null,
       shortMnemonic: null,
       recoveredSecret: null,
@@ -246,21 +249,8 @@ export default {
     slip39 () {
       const threshold = this.threshold
       const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
-
-      console.log(groups)
-      console.log(threshold)
-
       const passphrase = this.passphrase
-
-      let baseMnemonic = this.shortenMnemonic ? this.shortMnemonic.toString() : this.mnemonic.toString()
-      let paddedSecret = baseMnemonic.encodeHex()
-      if (baseMnemonic.length % 2 !== 0) {
-        const evenLength = 2 * Math.round(baseMnemonic.length / 2)
-        baseMnemonic = lpad(baseMnemonic, ' ', evenLength)
-        paddedSecret = baseMnemonic.encodeHex()
-      }
-
-      const masterSecret = paddedSecret
+      const masterSecret = bip39.mnemonicToEntropy(this.mnemonic).encodeHex()
 
       const slip = slip39.fromArray(masterSecret, {
         passphrase,
@@ -277,22 +267,13 @@ export default {
         }
       })
 
-      console.log(shares)
-      // const aliceShare = slip.fromPath('r/0').mnemonics
-
-      // const familyShares = slip.fromPath('r/3/1').mnemonics
-      //   .concat(slip.fromPath('r/3/3').mnemonics)
-
       this.allShares = shares
-
-      // const recoveryParts = [shares[0], shares[1], shares[2]]
-
-      // const recoveredSecret = slip39.recoverSecret(recoveryParts, passphrase)
-      // this.recoveredSecret = recoveredSecret.decodeHex().trim()
     },
     generateMnemonic () {
       bip39.setDefaultWordlist(this.language)
       const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
+      console.log(strength)
+
       const mnemonic = bip39.generateMnemonic(strength)
       this.mnemonic = mnemonic
       const shortMnemonic = shortenMnemonic(mnemonic)

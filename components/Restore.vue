@@ -97,8 +97,8 @@ export default {
     restore () {
       try {
         this.recoveredSecret = ''
-        const encodedSecret = slip39.recoverSecret(this.parts.map(part => part.trim()), this.passphrase)
-        this.recoveredSecret = encodedSecret.decodeHex().trim()
+        const recoveredEntropy = slip39.recoverSecret(this.parts.map(part => part.trim()), this.passphrase)
+        this.recoveredSecret = bip39.entropyToMnemonic(recoveredEntropy.decodeHex())
         this.recoveredSecretType = 'is-success'
         this.showAddNewShare = false
       } catch (e) {
