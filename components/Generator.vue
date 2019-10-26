@@ -38,16 +38,9 @@
           <option title="24" value="24">
             24
           </option>
-          <!-- <option title="21" value="21">
-            21
-          </option> -->
           <option title="18" value="18">
             18
           </option>
-          <!-- <option title="15" value="15">
-            15
-          </option> -->
-
           <option title="12" value="12">
             12
           </option>
@@ -152,29 +145,43 @@
             <b-icon :icon="`numeric-${share.index}-box-multiple-outline`" />
             <span><b-tag rounded> {{ share.threshold }}/{{ share.shares }} </b-tag> </span>
           </template>
-          <article
-            v-for="(shareMnemonic, shareIndex) in share.mnemonicShares"
-            :key="shareMnemonic"
-            class="message is-small is-info"
-          >
-            <div class="message-header">
-              <p>{{ 'Group ' + groupIndex + ' | Share ' + shareIndex + ' | Words ' + wordCount(shareMnemonic) }}</p>
-              <button class="button is-copy-button" area-label="copy-share" type="is-text" @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)">
-                <span class="icon">
-                  <i class="mdi mdi-content-copy" />
-                </span>
-              </button>
-            </div>
-            <div class="message-body">
-              <b-input
-                :id="'sharetext-' + groupIndex + '-' + shareIndex"
-                type="textarea"
-                :value="shareMnemonic"
-                readonly
-                expanded
-              />
-            </div>
-          </article>
+          <div class="table-container">
+            <table class="table is-fullwidth is-striped is-bordered">
+              <thead>
+                <th>Group {{ groupIndex }}</th>
+                <th>Share</th>
+                <th />
+              </thead>
+              <tbody>
+                <tr
+                  v-for="(shareMnemonic, shareIndex) in share.mnemonicShares"
+                  :key="shareMnemonic"
+                >
+                  <td>
+                    <b-taglist attached>
+                      <b-tag type="is-info">
+                        Share {{ shareIndex }}
+                      </b-tag>
+                      <b-tag type="is-dark">
+                        {{ wordCount(shareMnemonic) }}
+                      </b-tag>
+                    </b-taglist>
+                  </td>
+                  <td>
+                    <b-input
+                      :id="'sharetext-' + groupIndex + '-' + shareIndex"
+                      type="textarea"
+                      :value="shareMnemonic"
+                      readonly
+                      expanded
+                    />
+                  </td>
+
+                  <td><b-button icon-left="content-copy" type="is-text" area-label="copy-share" @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)" /></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </b-tab-item>
       </b-tabs>
     </template>
@@ -316,16 +323,12 @@ export default {
       return str.split(' ').length
     },
     copyToClipboard (elementId) {
-      /* Get the text field */
-      alert(elementId)
       const copyText = document.getElementById(elementId)
-
-      /* Select the text field */
       copyText.select()
-      copyText.setSelectionRange(0, 99999) /* For mobile devices */
-
-      /* Copy the text inside the text field */
+      copyText.setSelectionRange(0, 99999)
       document.execCommand('copy')
+      const [ sharetext, group, share ] = elementId.split('-')
+      this.$buefy.snackbar.open(`Copied share ${share} from group ${group}`)
     }
   }
 }
