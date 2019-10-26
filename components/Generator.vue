@@ -97,35 +97,47 @@
       <h6 class="subtitle">
         2. Configure
       </h6>
-      <b-field position="is-right">
-        <b-button size="is-small" type="is-text" @click="addGroup">
-          Add Group
-        </b-button>
+      <b-field grouped>
+        <table class="table is-narrow">
+          <thead>
+            <th>#</th>
+            <th>Threshold</th>
+            <th>Shares</th>
+            <th></th>
+          </thead>
+          <tbody>
+            <tr v-for="(threshold, index) in thresholds" :key="index">
+              <td>{{ index }}</td>
+              <td>
+                <b-numberinput
+                  v-model="thresholds[index]"
+                  type="is-info"
+                  controls-position="compact"
+                  size="is-small"
+                  min="1"
+                  :max="shareGroups[index]"
+                />
+              </td>
+              <td>
+                <b-numberinput
+                  v-model="shareGroups[index]"
+                  controls-position="compact"
+                  size="is-small"
+                  type="is-info"
+                  :min="thresholds[index]"
+                  :max="6"
+                />
+              </td>
+              <td>
+                <b-button icon-left="plus" type="is-text" @click="addGroup" />
+                <b-button icon-left="delete" type="is-text" @click="removeGroup(index)" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </b-field>
-      <b-field v-for="(threshold, index) in thresholds" :key="index" grouped>
-        <b-field label-position="on-border" :label="`G${index}: Threshold`">
-          <b-numberinput
-            v-model="thresholds[index]"
-            type="is-info"
-            controls-position="compact"
-            size="is-small"
-            min="1"
-            :max="shareGroups[index]"
-          />
-        </b-field>
-        <b-field label-position="on-border" label="Total Shares">
-          <b-numberinput
-            v-model="shareGroups[index]"
-            controls-position="compact"
-            size="is-small"
-            type="is-info"
-            :min="thresholds[index]"
-            :max="6"
-          />
-        </b-field>
-      </b-field>
-      <b-field>
-        <b-button type="is-primary is-outlined" @click="slip39">
+      <b-field class="spacer-top-lg">
+        <b-button size="is-medium" type="is-primary is-outlined" @click="slip39">
           Split
         </b-button>
       </b-field>
@@ -135,16 +147,20 @@
         3. Share Groups
       </h6>
       <b-tabs class="spacer-top=lg">
-        <b-tab-item v-for="share in allShares" :key="share" v-model="activeTab">
+        <b-tab-item v-for="(share, groupIndex) in allShares" :key="share" v-model="activeTab">
           <template slot="header">
             <b-icon :icon="`numeric-${share.index}-box-multiple-outline`" />
             <span><b-tag rounded> {{ share.threshold }}/{{ share.shares }} </b-tag> </span>
           </template>
-          <b-message v-for="shareMnemonic in share.mnemonicShares" :key="shareMnemonic" class="column is-full spacer">
+          <b-message
+            v-for="(shareMnemonic, shareIndex) in share.mnemonicShares"
+            :key="shareMnemonic"
+            type="is-info"
+            size="is-small"
+            :title="'Group ' + groupIndex + ' | Share ' + shareIndex + ' | Words ' + wordCount(shareMnemonic)"
+            :closable="false"
+          >
             {{ shareMnemonic }}
-            <small>
-              {{ shareMnemonic.split(" ").length }}
-            </small>
           </b-message>
         </b-tab-item>
       </b-tabs>
@@ -246,6 +262,12 @@ export default {
         this.shareGroups.push(5)
       }
     },
+    removeGroup (index) {
+      if (this.thresholds.length > 1) {
+        this.thresholds.splice(index, 1)
+        this.shareGroups.splice(index, 1)
+      }
+    },
     slip39 () {
       const threshold = this.threshold
       const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
@@ -271,13 +293,14 @@ export default {
     },
     generateMnemonic () {
       bip39.setDefaultWordlist(this.language)
-      const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
-      console.log(strength)
 
-      const mnemonic = bip39.generateMnemonic(strength)
-      this.mnemonic = mnemonic
-      const shortMnemonic = shortenMnemonic(mnemonic)
-      this.shortMnemonic = shortMnemonic
+      // Words to bits
+      const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
+      this.mnemonic = bip39.generateMnemonic(strength)
+      this.shortMnemonic = shortenMnemonic(this.mnemonic)
+    },
+    wordCount (str) {
+      return str.split(' ').length
     }
   }
 }
@@ -301,5 +324,11 @@ export default {
   .spacer-top-md {
    margin-top: 20px;
  }
+
+ /* .message-header {
+    background-color: #dfdbdb;
+    color: #4a4a4a;
+    font-family: "Montserrat", sans-serif;
+ } */
 
 </style>
