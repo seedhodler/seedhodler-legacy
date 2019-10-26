@@ -90,50 +90,7 @@
           <b-icon icon="call-split" />
           <span> Derivation <b-tag rounded> BIP 32 </b-tag> </span>
         </template>
-        <div v-if="bip32node" class="column">
-          <b-field label="Key Info: (Node Public Key)">
-            <b-input :value="bip32node.publicKey.toString('hex')" expanded />
-          </b-field>
-          <b-field label="Key Info: Depth">
-            <b-input :value="bip32node.depth" expanded />
-          </b-field>
-          <b-field label="Key Info: Index">
-            <b-input :value="bip32node.index" expanded />
-          </b-field>
-          <b-field label="Key Info: Identifier">
-            <b-input :value="bip32node.identifier.toString('hex')" expanded />
-          </b-field>
-          <b-field v-if="bip32node.parentFingerprint" label="Key Info: Parent Fingerprint">
-            <b-input :value="bip32node.parentFingerprint.toString('hex')" expanded />
-          </b-field>
-          <b-field label="Key Info: Parent Fingerprint">
-            <b-input :value="bip32node.fingerprint.toString('hex')" expanded />
-          </b-field>
-          <b-field label="Key Info: (Node Private Key)">
-            <b-input :value="bip32node.privateKey.toString('hex')" expanded />
-          </b-field>
-        </div>
-        <div v-if="derivedPath" class="column">
-          <b-field
-            horizontal
-            :type="validDerivationPath ? 'is-success' : 'is-warning'"
-            :message="validDerivationPath ? 'valid path' : 'invalid path'"
-            label="Path"
-          >
-            <b-input v-model="derivationPath" />
-            <p class="control">
-              <b-button :disabled="!validDerivationPath" type="is-success" @click="updateDerivationPath">
-                derive
-              </b-button>
-            </p>
-          </b-field>
-          <b-field label="Private Key (WIF)">
-            <b-input :value="derivedPath.toWIF()" expanded />
-          </b-field>
-          <b-field label="Derived Private Key">
-            <b-input :value="derivedPath.toBase58()" expanded />
-          </b-field>
-        </div>
+        <NodeInfo :seed="seed" />
       </b-tab-item>
     </b-tabs>
     <template v-if="mnemonic">
@@ -203,7 +160,8 @@
 <script>
 import * as bip39 from 'bip39'
 import * as slip39 from 'slip39/src/slip39'
-import * as bip32 from 'bip32'
+
+import NodeInfo from '~/components/NodeInfo'
 
 const lpad = (str, padString, length) => {
   while (str.length < length) { str = padString + str }
@@ -232,6 +190,7 @@ const shortMnemonicToOriginal = (language, shortMnemonic) => {
 export default {
   name: 'Generator',
   components: {
+    NodeInfo
   },
   data () {
     return {
@@ -240,12 +199,8 @@ export default {
       words: 24,
       mnemonic: null,
       shortMnemonic: null,
-      seed: null,
-      bip32node: null,
       recoveredSecret: null,
       allShares: null,
-      derivationPath: 'm/0\'/0/0',
-      derivedPath: null,
       passphrase: '',
       thresholds: [3],
       shareGroups: [5]
@@ -263,15 +218,6 @@ export default {
       }
       return false
     },
-    validDerivationPath () {
-      let valid = true
-      try {
-        this.bip32node.derivePath(this.derivationPath)
-      } catch (e) {
-        valid = false
-      }
-      return valid
-    },
     displayedMnemonic: {
       get () {
         return this.shortenMnemonic ? this.shortMnemonic : this.mnemonic
@@ -285,6 +231,9 @@ export default {
           this.shortMnemonic = shortenMnemonic(val)
         }
       }
+    },
+    seed () {
+      return bip39.mnemonicToSeedSync(this.mnemonic)
     }
   },
   methods: {
@@ -345,18 +294,9 @@ export default {
       bip39.setDefaultWordlist(this.language)
       const strength = Math.floor(parseInt(this.words) * 10.66666666666) + 1
       const mnemonic = bip39.generateMnemonic(strength)
-      const shortMnemonic = shortenMnemonic(mnemonic)
-      const seed = bip39.mnemonicToSeedSync(mnemonic)
-      const node = bip32.fromSeed(seed)
-      const derivedPath = node.derivePath(this.derivationPath)
       this.mnemonic = mnemonic
+      const shortMnemonic = shortenMnemonic(mnemonic)
       this.shortMnemonic = shortMnemonic
-      this.seed = seed.toString('hex')
-      this.bip32node = node
-      this.derivedPath = derivedPath
-    },
-    updateDerivationPath () {
-      this.derivedPath = this.bip32node.derivePath(this.derivationPath)
     }
   }
 }
