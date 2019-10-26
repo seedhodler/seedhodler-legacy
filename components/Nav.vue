@@ -4,7 +4,7 @@
     <template slot="brand">
       <b-navbar-item href="/">
         <img
-          src="~/assets/logo.svg"
+          src="/logo.png"
           alt="SEEDHODLER"
         >
         Alpha
