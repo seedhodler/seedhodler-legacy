@@ -103,7 +103,7 @@
             <th>#</th>
             <th>Threshold</th>
             <th>Shares</th>
-            <th></th>
+            <th />
           </thead>
           <tbody>
             <tr v-for="(threshold, index) in thresholds" :key="index">
@@ -152,16 +152,29 @@
             <b-icon :icon="`numeric-${share.index}-box-multiple-outline`" />
             <span><b-tag rounded> {{ share.threshold }}/{{ share.shares }} </b-tag> </span>
           </template>
-          <b-message
+          <article
             v-for="(shareMnemonic, shareIndex) in share.mnemonicShares"
             :key="shareMnemonic"
-            type="is-info"
-            size="is-small"
-            :title="'Group ' + groupIndex + ' | Share ' + shareIndex + ' | Words ' + wordCount(shareMnemonic)"
-            :closable="false"
+            class="message is-small is-info"
           >
-            {{ shareMnemonic }}
-          </b-message>
+            <div class="message-header">
+              <p>{{ 'Group ' + groupIndex + ' | Share ' + shareIndex + ' | Words ' + wordCount(shareMnemonic) }}</p>
+              <button class="button is-copy-button" area-label="copy-share" type="is-text" @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)">
+                <span class="icon">
+                  <i class="mdi mdi-content-copy" />
+                </span>
+              </button>
+            </div>
+            <div class="message-body">
+              <b-input
+                :id="'sharetext-' + groupIndex + '-' + shareIndex"
+                type="textarea"
+                :value="shareMnemonic"
+                readonly
+                expanded
+              />
+            </div>
+          </article>
         </b-tab-item>
       </b-tabs>
     </template>
@@ -301,6 +314,18 @@ export default {
     },
     wordCount (str) {
       return str.split(' ').length
+    },
+    copyToClipboard (elementId) {
+      /* Get the text field */
+      alert(elementId)
+      const copyText = document.getElementById(elementId)
+
+      /* Select the text field */
+      copyText.select()
+      copyText.setSelectionRange(0, 99999) /* For mobile devices */
+
+      /* Copy the text inside the text field */
+      document.execCommand('copy')
     }
   }
 }
@@ -325,10 +350,20 @@ export default {
    margin-top: 20px;
  }
 
- /* .message-header {
-    background-color: #dfdbdb;
-    color: #4a4a4a;
-    font-family: "Montserrat", sans-serif;
- } */
+  .is-copy-button {
+    background-color: transparent;
+    color: inherit;
+    border: none;
+  }
 
+  .is-copy-button:hover {
+    background-color: transparent;
+    color: rgb(20, 150, 237);
+    border: none;
+  }
+
+  .share-textarea {
+    background: transparent;
+    border: none;
+  }
 </style>
