@@ -48,7 +48,9 @@ export default {
   name: 'NodeInfo',
   components: {
   },
-  props: ['seed'],
+  props: {
+    seed: String
+  },
   data () {
     return {
       derivationPath: 'm/0\'/0/0'
@@ -59,23 +61,22 @@ export default {
       return bip32.fromSeed(this.seed)
     },
     derivedPath () {
-      if (this.validDerivationPath(this.derivationPath)) {
+      if (this.validDerivationPath) {
         return this.bip32node.derivePath(this.derivationPath)
       }
 
       return null
+    },
+    validDerivationPath () {
+      try {
+        this.bip32node.derivePath(this.derivationPath)
+        return true
+      } catch (e) {
+        return false
+      }
     }
   },
   methods: {
-    validDerivationPath () {
-      let valid = true
-      try {
-        this.bip32node.derivePath(this.derivationPath)
-      } catch (e) {
-        valid = false
-      }
-      return valid
-    }
   }
 }
 </script>
