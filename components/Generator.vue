@@ -100,7 +100,7 @@
           </thead>
           <tbody>
             <tr v-for="(threshold, index) in thresholds" :key="index">
-              <td>{{ index }}</td>
+              <td>{{ index + 1 }}</td>
               <td>
                 <b-numberinput
                   v-model="thresholds[index]"
@@ -129,7 +129,9 @@
         </table>
       </b-field>
       <b-field>
-        <b-button icon-left="plus" type="is-text" @click="addGroup">Add Share Group</b-button>
+        <b-button icon-left="plus" type="is-text" @click="addGroup">
+          Add Share Group
+        </b-button>
       </b-field>
       <b-field class="spacer-top-lg">
         <b-button size="is-medium" type="is-primary is-outlined" @click="generateShares">
@@ -144,12 +146,12 @@
       <b-tabs class="spacer-top=lg">
         <b-tab-item v-for="(share, groupIndex) in allShares" :key="groupIndex">
           <template slot="header">
-            <span><b-tag rounded> {{ share.groupName }} [{{ share.threshold }}/{{ share.shares }}] </b-tag> </span>
+            <span><b-tag rounded>{{ groupIndex + 1 }}. {{ share.groupName }} [{{ share.threshold }}/{{ share.shares }}] </b-tag> </span>
           </template>
           <div class="table-container">
             <table class="table is-fullwidth is-striped is-bordered">
               <thead>
-                <th>Group</th>
+                <th>Group {{ groupIndex + 1 }}</th>
                 <th>Share</th>
                 <th />
               </thead>
@@ -161,7 +163,7 @@
                   <td>
                     <b-taglist attached>
                       <b-tag type="is-info">
-                        Share {{ shareIndex }}
+                        Share {{ shareIndex + 1 }}
                       </b-tag>
                       <b-tag type="is-dark">
                         {{ wordCount(shareMnemonic) }}
