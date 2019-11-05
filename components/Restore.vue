@@ -8,8 +8,8 @@
         ref="addinput"
         v-model="newShare"
         type="textarea"
-        @enter="addShare"
         expanded
+        @enter="addShare"
       />
     </b-field>
     <b-field v-if="showAddNewShare">
@@ -28,7 +28,7 @@
         </thead>
         <tbody v-for="(share, index) in shares" :key="index">
           <tr>
-            <td>{{ index }}</td>
+            <td>{{ index + 1 }}</td>
             <td>{{ simplifyMnemonic(share) }}</td>
             <td>
               <a @click="removeShare(index)">
