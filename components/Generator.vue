@@ -121,13 +121,15 @@
                   :max="6"
                 />
               </td>
-              <td>
-                <b-button icon-left="plus" type="is-text" @click="addGroup" />
+              <td v-if="shareGroups.length > 1">
                 <b-button icon-left="delete" type="is-text" @click="removeGroup(index)" />
               </td>
             </tr>
           </tbody>
         </table>
+      </b-field>
+      <b-field>
+        <b-button icon-left="plus" type="is-text" @click="addGroup">Add Share Group</b-button>
       </b-field>
       <b-field class="spacer-top-lg">
         <b-button size="is-medium" type="is-primary is-outlined" @click="generateShares">
