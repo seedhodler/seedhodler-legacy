@@ -16,8 +16,8 @@ export const coordinateToRandomUInt8 = (x, y) => {
   const yMax = Math.floor(y) % 255
   const xRand = getRandomInt(xMax)
   const yRand = getRandomInt(yMax)
-  const randUnit8 = Math.floor((xRand + yRand) / 2)
-  return randUnit8
+  const randUint8 = Math.floor((xRand + yRand) / 2)
+  return randUint8
 }
 
 export const uint8ArrayCoordinateRandomize = (array, x, y) => {
