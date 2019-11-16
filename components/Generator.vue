@@ -51,6 +51,7 @@
             Generate
           </b-button>
         </b-field>
+        <EntropyInput />
       </b-field>
     </b-field>
 
@@ -202,6 +203,7 @@
 <script>
 
 import NodeInfo from '~/components/NodeInfo'
+import EntropyInput from '~/components/EntropyInput'
 import { shortenMnemonic, shortMnemonicToOriginal, generateMnemonic, validateMnemonic, mnemonicToSeed, mnemonicToEntropy } from '~/helpers/bip39utils'
 import { getFormattedShares, shareGroupName } from '~/helpers/slip39utils'
 import { copyInputToClipboard } from '~/helpers/browserUtils'
@@ -209,7 +211,8 @@ import { copyInputToClipboard } from '~/helpers/browserUtils'
 export default {
   name: 'Generator',
   components: {
-    NodeInfo
+    NodeInfo,
+    EntropyInput
   },
   data () {
     return {
