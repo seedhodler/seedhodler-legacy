@@ -70,7 +70,9 @@ export default {
   },
   methods: {
     focusAddShareInput () {
-      this.$refs.addinput.focus()
+      if (this.$refs.addinput) {
+        this.$refs.addinput.focus()
+      }
     },
     addShare () {
       const trimmedshare = this.newShare.trim()

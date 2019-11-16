@@ -1,5 +1,5 @@
 export const wordsToUint8Array = (words) => {
-  switch (words) {
+  switch (Number(words)) {
     case 12:
       return new Uint8Array(16)
     case 18:
@@ -20,7 +20,7 @@ export const coordinateToRandomUInt8 = (x, y) => {
   return randUnit8
 }
 
-export const Uint8ArrayCoordinateRandomize = (array, x, y) => {
+export const uint8ArrayCoordinateRandomize = (array, x, y) => {
   const copy = new Uint8Array(array)
   const randomIndex = getRandomInt(array.length)
   const randomUint8 = coordinateToRandomUInt8(x, y)
@@ -37,11 +37,8 @@ export const secureMathRandom = () => {
   return window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295
 }
 
-export const digestMessage = async (message) => {
-  const msgUint8 = new TextEncoder().encode(message) // encode as (utf-8) Uint8Array
-  const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgUint8) // hash the message
-  const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
-}
-
-// for (var l = 0; l < 1000; l++) { r = Uint8ArrayCoordinateRandomize(r, getRandomInt(100000), getRandomInt(100000)) } console.log(r)
+// export const uint8ArrayToHash = async (message) => {
+//   const hashBuffer = await window.crypto.subtle.digest('SHA-256', message) // hash the message
+//   const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
+//   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
+// }

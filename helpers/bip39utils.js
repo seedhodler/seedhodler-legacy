@@ -22,8 +22,12 @@ export const shortMnemonicToOriginal = (language, shortMnemonic) => {
 export const generateMnemonic = (language, wordCount) => {
   bip39.setDefaultWordlist(language)
   const strength = Math.floor(parseInt(wordCount) * 10.66666666666) + 1
-  alert(strength)
   return bip39.generateMnemonic(strength)
+}
+
+export const generateMnemonicFromEntropy = (language, entropy) => {
+  bip39.setDefaultWordlist(language)
+  return bip39.entropyToMnemonic(entropy)
 }
 
 export const validateMnemonic = (mnemonic) => {
