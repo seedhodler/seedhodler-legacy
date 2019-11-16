@@ -50,8 +50,25 @@
           <b-button type="is-primary" outlined @click="generateMnemonic">
             Generate
           </b-button>
+          <b-field>
+            <b-button
+              type="is-text"
+              icon-left="chevron-down"
+              aria-controls="advancedEntropyGeneration"
+              @click="showEntropyInput = !showEntropyInput"
+            >
+              Advanced
+            </b-button>
+          </b-field>
         </b-field>
       </b-field>
+    </b-field>
+    <b-field>
+      <b-collapse :open="showEntropyInput" aria-id="advancedEntropyGeneration">
+        <div>
+          <EntropyInput :words="words" :entropy="entropy" @updateEntropy="updateEntropy" @clearEntropy="clearEntropy" />
+        </div>
+      </b-collapse>
     </b-field>
 
     <b-tabs size="is-small" class="spacer-top-md" expanded>
@@ -202,20 +219,22 @@
 <script>
 
 import NodeInfo from '~/components/NodeInfo'
-import { shortenMnemonic, shortMnemonicToOriginal, generateMnemonic, validateMnemonic, mnemonicToSeed, mnemonicToEntropy } from '~/helpers/bip39utils'
+import EntropyInput from '~/components/EntropyInput'
+import { shortenMnemonic, shortMnemonicToOriginal, generateMnemonic, generateMnemonicFromEntropy, validateMnemonic, mnemonicToSeed, mnemonicToEntropy } from '~/helpers/bip39utils'
 import { getFormattedShares, shareGroupName } from '~/helpers/slip39utils'
 import { copyInputToClipboard } from '~/helpers/browserUtils'
 
 export default {
   name: 'Generator',
   components: {
-    NodeInfo
+    NodeInfo,
+    EntropyInput
   },
   data () {
     return {
       shortenMnemonic: false,
       language: 'english',
-      words: 12,
+      words: "12",
       mnemonic: null,
       shortMnemonic: null,
       recoveredSecret: null,
@@ -223,7 +242,9 @@ export default {
       passphrase: '',
       masterThreshold: 1,
       thresholds: [3],
-      shareGroups: [5]
+      shareGroups: [5],
+      showEntropyInput: false,
+      entropy: null
     }
   },
   computed: {
@@ -257,6 +278,25 @@ export default {
     }
   },
   methods: {
+    updateEntropy (value) {
+      this.entropy = value
+      if (this.entropy) {
+        this.generateMnemonic()
+      }
+    },
+    clearEntropy () {
+      this.entropy = null
+      this.clearMnemonic()
+    },
+    clearMnemonic () {
+      if (this.mnemonic) {
+        this.mnemonic = null
+      }
+
+      if (this.shortMnemonic) {
+        this.shortMnemonic = null
+      }
+    },
     addGroup () {
       if (this.thresholds.length < 6) {
         this.thresholds.push(3)
@@ -276,7 +316,12 @@ export default {
       this.allShares = getFormattedShares(masterSecret, passphrase, this.masterThreshold, groups)
     },
     generateMnemonic () {
-      this.mnemonic = generateMnemonic(this.language, this.words)
+      if (this.entropy) {
+        // User generated entropy manually
+        this.mnemonic = generateMnemonicFromEntropy(this.language, this.entropy)
+      } else {
+        this.mnemonic = generateMnemonic(this.language, Number(this.words))
+      }
       this.shortMnemonic = shortenMnemonic(this.mnemonic)
     },
     wordCount (str) {

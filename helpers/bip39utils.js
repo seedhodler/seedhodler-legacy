@@ -25,6 +25,11 @@ export const generateMnemonic = (language, wordCount) => {
   return bip39.generateMnemonic(strength)
 }
 
+export const generateMnemonicFromEntropy = (language, entropy) => {
+  bip39.setDefaultWordlist(language)
+  return bip39.entropyToMnemonic(entropy)
+}
+
 export const validateMnemonic = (mnemonic) => {
   return bip39.validateMnemonic(mnemonic)
 }

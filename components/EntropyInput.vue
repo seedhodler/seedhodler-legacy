@@ -1,0 +1,141 @@
+<template>
+  <div>
+    <b-field label="Entropy Generation">
+      <b-field>
+        <p class="control">
+          <b-button size="is-small" type="is-info" outlined @click="generateRandomEntropy">
+            Generate Random
+          </b-button>
+          <b-button size="is-small" :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" outlined @click="generateEntropy">
+            {{ isGeneratingEntropy ? 'Stop Generating' : 'Generate Manually' }}
+          </b-button>
+          <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
+            Reset
+          </b-button>
+          <b-button
+            v-if="entropy"
+            size="is-small"
+            icon-left="chevron-down"
+            icon-right="alert-octagon"
+            type="is-danger"
+            outlined
+            @click="toggleShowEntropyArray"
+          >
+            Show entropy
+          </b-button>
+        </p>
+      </b-field>
+    </b-field>
+    <b-field>
+      <b-progress
+        v-if="isGeneratingEntropy"
+        size="is-small"
+        type="is-primary"
+        :show-value="true"
+        :max="requiredPoints"
+        :value="pointsGenerated"
+      >
+        {{ pointsGenerated }} / {{ requiredPoints }}
+      </b-progress>
+    </b-field>
+    <b-field v-if="showEntropyArray">
+      <b-taglist attached>
+        <b-tag type="is-dark">
+          Entropy
+        </b-tag>
+        <b-tag type="is-danger">
+          {{ entropy }}
+        </b-tag>
+      </b-taglist>
+    </b-field>
+  </div>
+</template>
+
+<script>
+import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash } from '~/helpers/entropyUtils'
+
+export default {
+  name: 'EntropyInput',
+  components: {
+  },
+  props: {
+    words: String,
+    entropy: Uint8Array
+  },
+  data () {
+    return {
+      isGeneratingEntropy: false,
+      entropyGenerationProgress: 0,
+      requiredPoints: 200,
+      lastX: 0,
+      lastY: 0,
+      lastEntropyTick: null,
+      showEntropyArray: false,
+      pointsGenerated: 0
+    }
+  },
+  watch: {
+    words () {
+      this.generateRandomEntropy()
+    }
+  },
+  methods: {
+    toggleShowEntropyArray () {
+      this.showEntropyArray = !this.showEntropyArray
+    },
+    clearEntropy () {
+      this.$emit('clearEntropy')
+      this.lastEntropyTick = null
+      this.entropyGenerationProgress = 0
+    },
+    generateRandomEntropy () {
+      const initArray = wordsToUint8Array(Number(this.words))
+      const entropyArray = window.crypto.getRandomValues(initArray)
+      this.$emit('updateEntropy', entropyArray)
+    },
+    generateEntropy (event) {
+      this.isGeneratingEntropy = !this.isGeneratingEntropy
+      const initArray = wordsToUint8Array(Number(this.words))
+      const entropyArray = this.entropy || window.crypto.getRandomValues(initArray)
+      this.pointsGenerated = 0
+      this.$emit('updateEntropy', entropyArray)
+      if (this.isGeneratingEntropy) {
+        this.entropyGenerationProgress = 0
+        window.addEventListener('mousemove', this.addEntropy)
+      } else {
+        window.removeEventListener('mousemove', this.addEntropy)
+      }
+    },
+    addEntropy (event) {
+      if (this.pointsGenerated >= this.requiredPoints) {
+        this.isGeneratingEntropy = false
+        this.lastEntropyTick = null
+        window.removeEventListener('mousemove', this.addEntropy)
+      }
+
+      const ts = new Date().getTime()
+
+      if (!this.lastEntropyTick) {
+        this.lastEntropyTick = ts
+      }
+
+      if (ts - this.lastEntropyTick > 100) {
+        const x = event.clientX
+        const y = event.clientY
+        if (x !== this.lastX && y !== this.lastY) {
+          this.lastX = x
+          this.lastY = y
+          const entropyArray = uint8ArrayCoordinateRandomize(this.entropy, x, y)
+          this.$emit('updateEntropy', entropyArray)
+          this.lastEntropyTick = ts
+          this.pointsGenerated += 1
+        }
+      }
+    }
+  }
+}
+
+</script>
+
+<style>
+</style>
