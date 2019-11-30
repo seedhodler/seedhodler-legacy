@@ -6882,9 +6882,9 @@ slice-ansi@^2.1.0:
     astral-regex "^1.0.0"
     is-fullwidth-code-point "^2.0.0"
 
-"slip39@git+ssh://git@github.com/ilap/slip39-js":
-  version "0.1.5-dev.1"
-  resolved "git+ssh://git@github.com/ilap/slip39-js#902b6e5afd66c0b9e3380e4c2eaabd21488f6e85"
+slip39@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/slip39/-/slip39-0.1.5.tgz#7f4bdad0cb83b293ddce66ffce32ab08db4dd7f8"
 
 snapdragon-node@^2.0.1:
   version "2.1.1"

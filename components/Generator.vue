@@ -38,9 +38,6 @@
           <option title="24" value="24">
             24
           </option>
-          <option title="18" value="18">
-            18
-          </option>
           <option title="12" value="12">
             12
           </option>
@@ -223,6 +220,7 @@ import EntropyInput from '~/components/EntropyInput'
 import { shortenMnemonic, shortMnemonicToOriginal, generateMnemonic, generateMnemonicFromEntropy, validateMnemonic, mnemonicToSeed, mnemonicToEntropy } from '~/helpers/bip39utils'
 import { getFormattedShares, shareGroupName } from '~/helpers/slip39utils'
 import { copyInputToClipboard } from '~/helpers/browserUtils'
+import { hexStringToByteArray } from '~/helpers/entropyUtils'
 
 export default {
   name: 'Generator',
@@ -234,7 +232,7 @@ export default {
     return {
       shortenMnemonic: false,
       language: 'english',
-      words: "12",
+      words: '12',
       mnemonic: null,
       shortMnemonic: null,
       recoveredSecret: null,
@@ -312,7 +310,7 @@ export default {
     generateShares () {
       const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
       const passphrase = this.passphrase
-      const masterSecret = mnemonicToEntropy(this.mnemonic).encodeHex()
+      const masterSecret = hexStringToByteArray(mnemonicToEntropy(this.mnemonic))
       this.allShares = getFormattedShares(masterSecret, passphrase, this.masterThreshold, groups)
     },
     generateMnemonic () {

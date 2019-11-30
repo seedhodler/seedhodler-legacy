@@ -13,12 +13,12 @@
         <b-tabs position="is-left" expanded @input="restoreSelected">
           <b-tab-item class="spacer-top-md" icon="pencil" label="Generate">
             <keep-alive>
-            <Generator />
+              <Generator />
             </keep-alive>
           </b-tab-item>
           <b-tab-item icon="backup-restore" label="Restore">
             <keep-alive>
-            <Restore ref="restore" />
+              <Restore ref="restore" />
             </keep-alive>
           </b-tab-item>
         </b-tabs>
