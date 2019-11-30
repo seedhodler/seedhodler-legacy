@@ -37,6 +37,20 @@ export const secureMathRandom = () => {
   return window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295
 }
 
+export const byteArrayToHexString = (byteArray) => {
+  return Array.prototype.map.call(byteArray, (byte) => {
+    return ('0' + (byte & 0xFF).toString(16)).slice(-2)
+  }).join('')
+}
+
+export const hexStringToByteArray = (hexString) => {
+  const result = []
+  for (let i = 0; i < hexString.length; i += 2) {
+    result.push(parseInt(hexString.substr(i, 2), 16))
+  }
+  return result
+}
+
 // export const uint8ArrayToHash = async (message) => {
 //   const hashBuffer = await window.crypto.subtle.digest('SHA-256', message) // hash the message
 //   const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array

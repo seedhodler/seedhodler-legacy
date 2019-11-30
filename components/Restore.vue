@@ -101,7 +101,7 @@ export default {
         this.recoveredSecret = ''
         const sanitizedShares = this.shares.map(share => share.trim())
         const recoveredEntropy = recoverSecret(sanitizedShares, this.passphrase)
-        this.recoveredSecret = entropyToMnemonic(recoveredEntropy.decodeHex())
+        this.recoveredSecret = entropyToMnemonic(new Uint8Array(recoveredEntropy))
         this.recoveredSecretType = 'is-success'
         this.showAddNewShare = false
       } catch (e) {
