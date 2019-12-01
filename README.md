@@ -2,7 +2,22 @@
 
 > _This project is a work in progress (WIP) and should not be used by anyone, under any circumstances for any reason whatsoever until the WIP status has been resolved_
 
-> &#34;Shamir Secret Sharing built for BIP39 Mnemonics. Alternative implementation to https://github.com/iancoleman/shamir39 &#34;,
+> &#34;SLIP39 Shamir Secret Sharing built for BIP39 Mnemonics&#34;,
+
+> ONLY USE THIS TOOL OFFLINE
+
+## SLIP39
+
+This tool aims to be an easy to use tool for securing your crypto (seeds / recovery phrases / mnemonics) via Shamir Secret Sharing, implementing [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md) from Trezor creators, Satoshi Labs. 
+
+The tool supports:
+- Easy phrase generation
+- Easy share generation and restoration
+- Group based share generation with variable thresholds from SLIP39
+- Multi-language seed / phrase generation
+- BIP32 info
+- BIP39 seed shortening
+
 
 ## Online Site (GH-PAGES)
 
