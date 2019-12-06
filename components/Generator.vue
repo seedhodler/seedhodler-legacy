@@ -44,15 +44,15 @@
         </b-select>
         <b-field />
         <b-field>
-          <b-button type="is-primary" outlined @click="generateMnemonic">
+          <b-button @click="generateMnemonic" type="is-primary" outlined>
             Generate
           </b-button>
           <b-field>
             <b-button
+              @click="showEntropyInput = !showEntropyInput"
               type="is-text"
               icon-left="chevron-down"
               aria-controls="advancedEntropyGeneration"
-              @click="showEntropyInput = !showEntropyInput"
             >
               Advanced
             </b-button>
@@ -118,37 +118,37 @@
               <td>
                 <b-numberinput
                   v-model="thresholds[index]"
+                  :max="shareGroups[index]"
                   type="is-info"
                   controls-position="compact"
                   size="is-small"
                   min="1"
-                  :max="shareGroups[index]"
                 />
               </td>
               <td>
                 <b-numberinput
                   v-model="shareGroups[index]"
+                  :min="thresholds[index]"
+                  :max="6"
                   controls-position="compact"
                   size="is-small"
                   type="is-info"
-                  :min="thresholds[index]"
-                  :max="6"
                 />
               </td>
               <td v-if="shareGroups.length > 1">
-                <b-button icon-left="delete" type="is-text" @click="removeGroup(index)" />
+                <b-button @click="removeGroup(index)" icon-left="delete" type="is-text" />
               </td>
             </tr>
           </tbody>
         </table>
       </b-field>
       <b-field>
-        <b-button icon-left="plus" type="is-text" @click="addGroup">
+        <b-button @click="addGroup" icon-left="plus" type="is-text">
           Add Share Group
         </b-button>
       </b-field>
       <b-field class="spacer-top-lg">
-        <b-button size="is-medium" type="is-primary is-outlined" @click="generateShares">
+        <b-button @click="generateShares" size="is-medium" type="is-primary is-outlined">
           Split
         </b-button>
       </b-field>
@@ -187,14 +187,14 @@
                   <td>
                     <b-input
                       :id="'sharetext-' + groupIndex + '-' + shareIndex"
-                      type="textarea"
                       :value="shareMnemonic"
+                      type="textarea"
                       readonly
                       expanded
                     />
                   </td>
 
-                  <td><b-button icon-left="content-copy" type="is-text" area-label="copy-share" @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)" /></td>
+                  <td><b-button @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)" icon-left="content-copy" type="is-text" area-label="copy-share" /></td>
                 </tr>
               </tbody>
             </table>
@@ -204,8 +204,8 @@
     </template>
     <div v-if="recoveredSecret" class="column has-text-left">
       <b-message
-        title="Recovered Seed Phrase"
         :type="recoveredSecret === mnemonic || recoveredSecret === displayedMnemonic ? 'is-success': 'is-danger'"
+        title="Recovered Seed Phrase"
       >
         {{ recoveredSecret }}
       </b-message>

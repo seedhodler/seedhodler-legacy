@@ -46,9 +46,9 @@
     </div>
     <div class="column">
       <b-field
-        horizontal
         :type="validDerivationPath ? 'is-success' : 'is-warning'"
         :message="validDerivationPath ? 'valid path' : 'invalid path'"
+        horizontal
         label="Path"
       >
         <b-input v-model="derivationPath" />

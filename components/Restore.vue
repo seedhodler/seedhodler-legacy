@@ -1,19 +1,19 @@
 <template>
   <div>
-    <b-field label="Recovered Phrase" :type="recoveredSecretType">
+    <b-field :type="recoveredSecretType" label="Recovered Phrase">
       <b-input v-model="recoveredSecret" type="textarea" expanded readonly />
     </b-field>
-    <b-field v-if="showAddNewShare" label="Add share" :type="validNewMnemonic ? 'is-success' : 'is-danger'">
+    <b-field v-if="showAddNewShare" :type="validNewMnemonic ? 'is-success' : 'is-danger'" label="Add share">
       <b-input
         ref="addinput"
         v-model="newShare"
+        @enter="addShare"
         type="textarea"
         expanded
-        @enter="addShare"
       />
     </b-field>
     <b-field v-if="showAddNewShare">
-      <b-button :disabled="!validNewMnemonic" type="is-success" @click="addShare">
+      <b-button :disabled="!validNewMnemonic" @click="addShare" type="is-success">
         Add
       </b-button>
     </b-field>
