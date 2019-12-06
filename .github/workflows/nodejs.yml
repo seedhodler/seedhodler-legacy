@@ -15,7 +15,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '10.x'
-    - run: cd site && yarn install && yarn generate:gh-pages
+    - run: yarn install && yarn generate:gh-pages
     - name: deploy
       uses: peaceiris/actions-gh-pages@v2.5.0
       env:
