@@ -1,17 +1,17 @@
 
 # Seedhodler: SLIP39 Secret Sharing
 
-<center>
+<p align="center">
 
 ![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fseedhodler.io)
 ![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) 
 ![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) 
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) [![GitHub contributors](https://img.shields.io/github/contributors/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/seedhodler/seedhodler)
 
 [![Work to Progress](https://img.shields.io/badge/Work_in_progress-YES-RED.svg)](https://shields.io/) [![Safe to use](https://img.shields.io/badge/Safe_to_use-TEST_ONLY-RED.svg)](https://shields.io/) 
-</center>
+</p>
 
 ## Disclaimer
 
