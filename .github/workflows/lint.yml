@@ -1,0 +1,15 @@
+name: es-lint
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  run_lint:
+    name: es-lint
+    runs-on: node
+    with:
+      node-version: '10.x'
+    steps:
+    - yarn run lint

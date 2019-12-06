@@ -1,3 +1,9 @@
+
+
+![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![](https://github.com/seedhodler/seedhodler/workflows/deploy-to-gh-pages/badge.svg)
+
 # Work in progress: Seedhodler
 
 > _This project is a work in progress (WIP) and should not be used by anyone, under any circumstances for any reason whatsoever until the WIP status has been resolved_
