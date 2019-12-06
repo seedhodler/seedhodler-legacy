@@ -41,10 +41,20 @@
     <b-field v-if="showEntropyArray">
       <b-taglist attached>
         <b-tag type="is-dark">
-          Entropy
+          Entropy from HMAC
         </b-tag>
         <b-tag type="is-danger">
           {{ entropy }}
+        </b-tag>
+      </b-taglist>
+    </b-field>
+    <b-field v-if="showEntropyArray">
+      <b-taglist attached>
+        <b-tag type="is-dark">
+          Mouse Movement Entropy
+        </b-tag>
+        <b-tag type="is-danger">
+          {{ gatheredMouseEntropy }}
         </b-tag>
       </b-taglist>
     </b-field>
@@ -52,7 +62,17 @@
 </template>
 
 <script>
-import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash } from '~/helpers/entropyUtils'
+import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash, mouseMovementEntropy, mouseMovementToHmacEntropy } from '~/helpers/entropyUtils'
+
+let timerId = null
+
+const debounceFunction = (func, delay) => {
+  // Cancels the setTimeout method execution
+  clearTimeout(timerId)
+
+  // Executes the func after delay time.
+  timerId = setTimeout(func, delay)
+}
 
 export default {
   name: 'EntropyInput',
@@ -66,12 +86,13 @@ export default {
     return {
       isGeneratingEntropy: false,
       entropyGenerationProgress: 0,
-      requiredPoints: 200,
+      requiredPoints: 256,
       lastX: 0,
       lastY: 0,
       lastEntropyTick: null,
       showEntropyArray: false,
-      pointsGenerated: 0
+      pointsGenerated: 0,
+      gatheredMouseEntropy: []
     }
   },
   watch: {
@@ -119,16 +140,23 @@ export default {
         this.lastEntropyTick = ts
       }
 
-      if (ts - this.lastEntropyTick > 100) {
+      if (ts - this.lastEntropyTick > 50) {
         const x = event.clientX
         const y = event.clientY
         if (x !== this.lastX && y !== this.lastY) {
           this.lastX = x
           this.lastY = y
-          const entropyArray = uint8ArrayCoordinateRandomize(this.entropy, x, y)
-          this.$emit('updateEntropy', entropyArray)
-          this.lastEntropyTick = ts
-          this.pointsGenerated += 1
+          if (this.gatheredMouseEntropy.length >= 16) {
+            debounceFunction(async () => {
+              const entropyArray = await mouseMovementToHmacEntropy(this.gatheredMouseEntropy, this.entropy)
+              this.gatheredMouseEntropy = []
+              this.$emit('updateEntropy', entropyArray)
+            }, 100)
+          } else {
+            this.gatheredMouseEntropy.push(mouseMovementEntropy(x, y))
+            this.pointsGenerated += 1
+            this.lastEntropyTick = ts
+          }
         }
       }
     }
