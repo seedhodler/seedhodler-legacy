@@ -16,7 +16,7 @@
       <a href="https://github.com/seedhodler/seedhodler" target="_blank" class="navbar-item">
         GitHub (Source)
       </a>
-      <b-navbar-item tag="router-link" :to="{ name: 'index' }">
+      <b-navbar-item :to="{ name: 'index' }" tag="router-link">
         Generate or Restore
       </b-navbar-item>
     </template>

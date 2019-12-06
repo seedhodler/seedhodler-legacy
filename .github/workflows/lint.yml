@@ -1,0 +1,19 @@
+name: es-lint
+on: push
+env:
+  NODE_VERSION: '10.x'    
+
+jobs:
+  run-lint:
+    name: run-lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Use Node.js ${{ env.NODE_VERSION }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+    - name: yarn install & yarn run lint
+      run: |
+        yarn install
+        yarn run lint

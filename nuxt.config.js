@@ -1,5 +1,7 @@
+const IS_GH_PAGES = process.env.DEPLOY_ENV === 'GH_PAGES'
+
 const routerBase =
-  process.env.DEPLOY_ENV === 'GH_PAGES'
+  IS_GH_PAGES
     ? {
       router: {
         base: '/'
@@ -21,7 +23,8 @@ export default {
       {
         hid: 'description',
         name: 'description',
-        content: process.env.npm_package_description || ''
+        content: process.env.npm_package_description || '',
+        version: process.env.npm_package_version || ''
       }
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]

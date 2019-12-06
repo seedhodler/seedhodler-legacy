@@ -3,23 +3,23 @@
     <b-field label="Entropy Generation">
       <b-field>
         <p class="control">
-          <b-button size="is-small" type="is-info" outlined @click="generateRandomEntropy">
+          <b-button @click="generateRandomEntropy" size="is-small" type="is-info" outlined>
             Generate Random
           </b-button>
-          <b-button size="is-small" :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" outlined @click="generateEntropy">
+          <b-button :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" @click="generateEntropy" size="is-small" outlined>
             {{ isGeneratingEntropy ? 'Stop Generating' : 'Generate Manually' }}
           </b-button>
-          <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
+          <b-button @click="clearEntropy" size="is-small" type="is-info" outlined>
             Reset
           </b-button>
           <b-button
             v-if="entropy"
+            @click="toggleShowEntropyArray"
             size="is-small"
             icon-left="chevron-down"
             icon-right="alert-octagon"
             type="is-danger"
             outlined
-            @click="toggleShowEntropyArray"
           >
             Show entropy
           </b-button>
@@ -29,11 +29,11 @@
     <b-field>
       <b-progress
         v-if="isGeneratingEntropy"
-        size="is-small"
-        type="is-primary"
         :show-value="true"
         :max="requiredPoints"
         :value="pointsGenerated"
+        size="is-small"
+        type="is-primary"
       >
         {{ pointsGenerated }} / {{ requiredPoints }}
       </b-progress>
