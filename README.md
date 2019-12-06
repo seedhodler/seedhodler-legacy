@@ -1,9 +1,19 @@
 
+# Seedhodler: SLIP39 Secret Sharing
 
-[![Work to Progress](https://img.shields.io/badge/Work_in_progress-YES-RED.svg)](https://shields.io/) [![Safe to use](https://img.shields.io/badge/Safe_to_use-TEST_ONLY-RED.svg)](https://shields.io/) ![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) ![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) ![](https://badge.fury.io/js/seedhodler/seedholder.svg) [![GitHub contributors](https://img.shields.io/github/contributors/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
+<center>
 
+![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fseedhodler.io)
+![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) 
+![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) 
 
-# Work in progress: Seedhodler
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) [![GitHub contributors](https://img.shields.io/github/contributors/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/seedhodler/seedhodler)
+
+[![Work to Progress](https://img.shields.io/badge/Work_in_progress-YES-RED.svg)](https://shields.io/) [![Safe to use](https://img.shields.io/badge/Safe_to_use-TEST_ONLY-RED.svg)](https://shields.io/) 
+</center>
+
+## Disclaimer
 
 > _This project is a work in progress (WIP) and should not be used by anyone, under any circumstances for any reason whatsoever until the WIP status has been resolved_
 
@@ -11,7 +21,7 @@
 
 > ONLY USE THIS TOOL OFFLINE
 
-## SLIP39
+## About
 
 This tool aims to be an easy to use tool for securing your crypto (seeds / recovery phrases / mnemonics) via Shamir Secret Sharing, implementing [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md) from Trezor creators, Satoshi Labs. 
 
@@ -24,7 +34,7 @@ The tool supports:
 - BIP39 seed shortening
 
 
-## Online Site (GH-PAGES)
+## Online Site (GH-PAGES) 
 
 - [seedhodler online](https://seedhodler.github.io/seedhodler/)
 
