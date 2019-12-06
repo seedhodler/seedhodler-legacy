@@ -1,5 +1,5 @@
 name: es-lint
-
+on: push
 jobs:
   run_lint:
     name: es-lint
