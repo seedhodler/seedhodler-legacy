@@ -1,9 +1,4 @@
 name: es-lint
-on:
-  push:
-    branches: [master]
-  pull_request:
-    branches: [master]
 
 jobs:
   run_lint:
