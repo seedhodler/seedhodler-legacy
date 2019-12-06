@@ -1,8 +1,7 @@
 
 
-![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-![](https://github.com/seedhodler/seedhodler/workflows/deploy-to-gh-pages/badge.svg)
+[![Work to Progress](https://img.shields.io/badge/Work_in_progress-YES-RED.svg)](https://shields.io/) [![Safe to use](https://img.shields.io/badge/Safe_to_use-TEST_ONLY-RED.svg)](https://shields.io/) ![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) ![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) ![](https://badge.fury.io/js/seedhodler/seedholder.svg) [![GitHub contributors](https://img.shields.io/github/contributors/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/graphs/contributors/) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
+
 
 # Work in progress: Seedhodler
 
