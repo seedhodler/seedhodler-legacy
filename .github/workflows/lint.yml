@@ -13,6 +13,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ env.NODE_VERSION }}
-    - name: yarn run lint
+    - name: yarn install & yarn run lint
       run: |
+        yarn install
         yarn run lint
