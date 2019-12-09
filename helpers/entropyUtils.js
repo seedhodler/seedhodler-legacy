@@ -36,12 +36,12 @@ export const getKeyMaterial = async (mouseMovemenntEntropy) => {
 }
 
 const PBKDF2 = {
-  'name': 'PBKDF2',
-  'iterations': 100000,
-  'hash': 'SHA-256'
+  name: 'PBKDF2',
+  iterations: 100000,
+  hash: 'SHA-256'
 }
 
-const HMAC = { 'name': 'HMAC', 'hash': 'SHA-256' }
+const HMAC = { name: 'HMAC', hash: 'SHA-256' }
 
 export const deriveKey = async (keyMaterial, salt) => {
   // Derive PDKDF2 key from keyMaterial
@@ -52,7 +52,7 @@ export const deriveKey = async (keyMaterial, salt) => {
     keyMaterial,
     HMAC,
     true,
-    [ 'sign', 'verify' ]
+    ['sign', 'verify']
   )
 
   return derivedKey

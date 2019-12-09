@@ -327,7 +327,7 @@ export default {
     },
     copyToClipboard (elementId) {
       copyInputToClipboard(elementId)
-      const [ sharetext, group, share ] = elementId.split('-')
+      const [sharetext, group, share] = elementId.split('-')
       this.$buefy.snackbar.open(`Copied share ${share} from group ${group}`)
     }
   }
