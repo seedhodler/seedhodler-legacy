@@ -44,15 +44,15 @@
         </b-select>
         <b-field />
         <b-field>
-          <b-button @click="generateMnemonic" type="is-primary" outlined>
+          <b-button type="is-primary" outlined @click="generateMnemonic">
             Generate
           </b-button>
           <b-field>
             <b-button
-              @click="showEntropyInput = !showEntropyInput"
               type="is-text"
               icon-left="chevron-down"
               aria-controls="advancedEntropyGeneration"
+              @click="showEntropyInput = !showEntropyInput"
             >
               Advanced
             </b-button>
@@ -136,19 +136,19 @@
                 />
               </td>
               <td v-if="shareGroups.length > 1">
-                <b-button @click="removeGroup(index)" icon-left="delete" type="is-text" />
+                <b-button icon-left="delete" type="is-text" @click="removeGroup(index)" />
               </td>
             </tr>
           </tbody>
         </table>
       </b-field>
       <b-field>
-        <b-button @click="addGroup" icon-left="plus" type="is-text">
+        <b-button icon-left="plus" type="is-text" @click="addGroup">
           Add Share Group
         </b-button>
       </b-field>
       <b-field class="spacer-top-lg">
-        <b-button @click="generateShares" size="is-medium" type="is-primary is-outlined">
+        <b-button size="is-medium" type="is-primary is-outlined" @click="generateShares">
           Split
         </b-button>
       </b-field>
@@ -194,7 +194,7 @@
                     />
                   </td>
 
-                  <td><b-button @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)" icon-left="content-copy" type="is-text" area-label="copy-share" /></td>
+                  <td><b-button icon-left="content-copy" type="is-text" area-label="copy-share" @click="copyToClipboard('sharetext-' + groupIndex + '-' + shareIndex)" /></td>
                 </tr>
               </tbody>
             </table>

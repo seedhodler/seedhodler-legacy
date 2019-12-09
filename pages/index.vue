@@ -10,7 +10,7 @@
 
     <div class="card">
       <div class="card-content">
-        <b-tabs @input="restoreSelected" position="is-left" expanded>
+        <b-tabs position="is-left" expanded @input="restoreSelected">
           <b-tab-item class="spacer-top-md" icon="pencil" label="Generate">
             <keep-alive>
               <Generator />
