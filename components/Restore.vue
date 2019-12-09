@@ -7,13 +7,13 @@
       <b-input
         ref="addinput"
         v-model="newShare"
-        @enter="addShare"
         type="textarea"
         expanded
+        @enter="addShare"
       />
     </b-field>
     <b-field v-if="showAddNewShare">
-      <b-button :disabled="!validNewMnemonic" @click="addShare" type="is-success">
+      <b-button :disabled="!validNewMnemonic" type="is-success" @click="addShare">
         Add
       </b-button>
     </b-field>

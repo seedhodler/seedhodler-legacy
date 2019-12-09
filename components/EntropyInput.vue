@@ -3,23 +3,23 @@
     <b-field label="Entropy Generation">
       <b-field>
         <p class="control">
-          <b-button @click="generateRandomEntropy" size="is-small" type="is-info" outlined>
+          <b-button size="is-small" type="is-info" outlined @click="generateRandomEntropy">
             Generate Random
           </b-button>
-          <b-button :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" @click="generateEntropy" size="is-small" outlined>
+          <b-button :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropy">
             {{ isGeneratingEntropy ? 'Stop Generating' : 'Generate Manually' }}
           </b-button>
-          <b-button @click="clearEntropy" size="is-small" type="is-info" outlined>
+          <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
             Reset
           </b-button>
           <b-button
             v-if="entropy"
-            @click="toggleShowEntropyArray"
             size="is-small"
             icon-left="chevron-down"
             icon-right="alert-octagon"
             type="is-danger"
             outlined
+            @click="toggleShowEntropyArray"
           >
             Show entropy
           </b-button>
