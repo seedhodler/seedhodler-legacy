@@ -64,9 +64,17 @@ Primary dependencies (see package.json for entire list)
 
 - [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md): SatoshiLabs
 - [bip39](https://github.com/bitcoinjs/bip39): Bitcoinjs
+- [bip32](https://github.com/bitcoinjs/bip32): Bitcoinjs
+- [nuxtjs](https://nuxtjs.org/): Nuxtjs
+- [buefy](https://buefy.org/documentation/loading): Buefy
 
 # References
 
 - [bip32jp](https://bip32jp.github.io/english/): bip32JP
 - [shamir39](https://iancoleman.io/shamir39/): iancoleman.io
+- [bip39](https://iancoleman.io/bip39/): iancoleman.io
 - [https://bip39tool.ioncore.xyz/](https://bip39tool.ioncore.xyz/): iancoleman.io
+
+# Thanks
+
+This project is heavily inspired by the many fantastic open source initiatives from the crypto community. Some honorable mentions include the work done by Satoshi labs, Bitcoinjs and Ian Coleman.
