@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="entropyInputElement">
     <b-field label="Entropy Generation">
       <b-field>
         <p class="control">
@@ -30,12 +30,12 @@
       <b-progress
         v-if="isGeneratingEntropy"
         :show-value="true"
-        :max="requiredPoints"
+        :max="pointsPerCollection * pointArrayThreshold"
         :value="pointsGenerated"
         size="is-small"
         type="is-primary"
       >
-        {{ pointsGenerated }} / {{ requiredPoints }}
+        {{ pointsGenerated }} / {{ pointsPerCollection * pointArrayThreshold }}
       </b-progress>
     </b-field>
     <b-field v-if="showEntropyArray">
@@ -48,13 +48,13 @@
         </b-tag>
       </b-taglist>
     </b-field>
-    <b-field v-if="showEntropyArray">
+    <b-field v-for="(collectedPoints, index) in collectedEntropyPoints" :key="index">
       <b-taglist attached>
         <b-tag type="is-dark">
-          Mouse Movement Entropy
+          {{ index }}
         </b-tag>
         <b-tag type="is-danger">
-          {{ gatheredMouseEntropy }}
+          {{ collectedPoints }}
         </b-tag>
       </b-taglist>
     </b-field>
@@ -86,13 +86,16 @@ export default {
     return {
       isGeneratingEntropy: false,
       entropyGenerationProgress: 0,
-      requiredPoints: 256,
+      pointsPerCollection: 16,
+      pointArrayThreshold: 8,
+      entropyLastTickDelay: 100,
       lastX: 0,
       lastY: 0,
       lastEntropyTick: null,
       showEntropyArray: false,
       pointsGenerated: 0,
-      gatheredMouseEntropy: []
+      collectedEntropyPoints: [],
+      currentEntropyPoints: []
     }
   },
   watch: {
@@ -127,11 +130,14 @@ export default {
         window.removeEventListener('mousemove', this.addEntropy)
       }
     },
-    addEntropy (event) {
+    stopGeneratingEntropy () {
+      this.isGeneratingEntropy = false
+      this.lastEntropyTick = null
+      window.removeEventListener('mousemove', this.addEntropy)
+    },
+    async addEntropy (event) {
       if (this.pointsGenerated >= this.requiredPoints) {
-        this.isGeneratingEntropy = false
-        this.lastEntropyTick = null
-        window.removeEventListener('mousemove', this.addEntropy)
+        this.stopGeneratingEntropy()
       }
 
       const ts = new Date().getTime()
@@ -140,22 +146,37 @@ export default {
         this.lastEntropyTick = ts
       }
 
-      if (ts - this.lastEntropyTick > 50) {
+      if (ts - this.lastEntropyTick > this.entropyLastTickDelay) {
         const x = event.clientX
         const y = event.clientY
         if (x !== this.lastX && y !== this.lastY) {
           this.lastX = x
           this.lastY = y
-          if (this.gatheredMouseEntropy.length >= 16) {
-            debounceFunction(async () => {
-              const entropyArray = await mouseMovementToHmacEntropy(this.gatheredMouseEntropy, this.entropy)
-              this.gatheredMouseEntropy = []
-              this.$emit('updateEntropy', entropyArray)
-            }, 100)
+          if (this.currentEntropyPoints.length >= this.pointsPerCollection) {
+            this.collectedEntropyPoints.push(this.currentEntropyPoints)
+            this.currentEntropyPoints = []
           } else {
-            this.gatheredMouseEntropy.push(mouseMovementEntropy(x, y))
+            this.currentEntropyPoints.push(mouseMovementEntropy(x, y))
             this.pointsGenerated += 1
             this.lastEntropyTick = ts
+          }
+
+          if (this.collectedEntropyPoints.length >= this.pointArrayThreshold && this.isGeneratingEntropy) {
+            const loadingComponent = this.$buefy.loading.open({
+              container: this.$refs.entropyInputElement.$el
+            })
+            this.stopGeneratingEntropy()
+            const initArray = wordsToUint8Array(Number(this.words))
+            let entropyArray = window.crypto.getRandomValues(initArray)
+
+            // Loop over all the collected point arrays, generate hmac sig and use that as entropyArray for the next loop
+            for (let k = 0; k < this.collectedEntropyPoints.length; k++) {
+              entropyArray = await mouseMovementToHmacEntropy(this.collectedEntropyPoints[k], entropyArray)
+            }
+
+            loadingComponent.close()
+            this.collectedEntropyPoints = []
+            this.$emit('updateEntropy', entropyArray)
           }
         }
       }
