@@ -7,6 +7,7 @@
 ![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fseedhodler.io)
 ![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) 
 ![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) 
+![](https://github.com/seedhodler/seedhodler/workflows/docker-build/badge.svg) 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/seedhodler/seedhodler)
