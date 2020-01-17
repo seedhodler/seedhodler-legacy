@@ -1,0 +1,12 @@
+name: docker-build
+on: push
+
+jobs:
+  docker-build:
+    name: docker-build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: build image
+      run: |
+        docker build -t seedhodler:ci-build .

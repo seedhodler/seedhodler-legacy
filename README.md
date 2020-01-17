@@ -7,6 +7,7 @@
 ![Website](https://img.shields.io/website?down_color=red&down_message=offline&up_color=green&up_message=online&url=https%3A%2F%2Fseedhodler.io)
 ![](https://github.com/seedhodler/seedhodler/workflows/es-lint/badge.svg) 
 ![](https://github.com/seedhodler/seedhodler/workflows/deploy/badge.svg) 
+![](https://github.com/seedhodler/seedhodler/workflows/docker-build/badge.svg) 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) ![](https://api.dependabot.com/badges/status?host=github&repo=seedhodler/seedhodler) [![GitHub issues](https://img.shields.io/github/issues/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues/) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/seedhodler/seedhodler.svg)](https://GitHub.com/seedhodler/seedhodler/issues?q=is%3Aissue+is%3Aclosed)
 ![GitHub pull requests](https://img.shields.io/github/issues-pr/seedhodler/seedhodler)
@@ -29,19 +30,20 @@
 This tool aims to be an easy to use tool for securing your crypto (seeds / recovery phrases / mnemonics) via Shamir Secret Sharing, implementing [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md) from Trezor creators, Satoshi Labs. 
 
 The tool supports:
-- Easy phrase generation
+- Easy recovery phrase generation
 - Easy share generation and restoration
 - Group based share generation with variable thresholds from SLIP39
-- Multi-language seed / phrase generation
+- Multi-language recovery phrase generation
 - BIP32 info
 - BIP39 seed shortening
+- [Cryptosteel Capsules](https://cryptosteel.com/product/cryptosteel-capsule/?v=3a52f3c22ed6)
 
 
 ## Online Site (GH-PAGES) 
 
 - [seedhodler online](https://seedhodler.github.io/seedhodler/)
 
-## Build Setup
+## Build Static Site Setup
 
 ```bash
 # install dependencies
@@ -54,9 +56,36 @@ $ yarn dev
 $ yarn build
 $ yarn start
 
-# generate static project
+# generate static site
 $ yarn generate
 ```
+
+# Running standalone with Docker
+
+Prerequisites:
+ - docker
+
+Using docker:
+- build docker image: `$ docker build -t seedhodler:local-build . `
+- run container: `$ docker run -it -p 4000:4000 seedhodler:local-build`
+
+Using docker-compose:
+- build image: `$ docker-compose build seedhodler`
+- run container: `$ docker-compose up`
+
+# Docker + Offline Machine standalone runner
+
+You can run the seedhodler tool in docker in your offline/cold storage machine that has docker installed. 
+
+- online-machine:
+    - build the image: `$ docker build -t seedhodler:local-build . `
+    - save the image: `$ docker save seedhodler:local-build`
+    - copy the zip file to another machine e.g. your offline/cold storage machine 
+- offline-machine (with docker):
+    - copy the `seedhodler.zip` file
+    - cd into the same directory
+    - load image: `$ docker load -i seedhodler.zip`
+    - run container: `$ docker run -it -p 4000:4000 seedhodler:local-build`
 
 # Dependencies
 
