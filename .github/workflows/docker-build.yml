@@ -1,13 +1,13 @@
 name: Docker Image CI
 
 on:
- push:
-    branches:
-    - master
-    - gh-actions
+    push:
+        branches:
+            - master
+            - gh-actions
 jobs:
-build:
-runs-on: ubuntu-latest
+    build:
+        runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
     - name: Get the version
