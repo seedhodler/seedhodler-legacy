@@ -55,7 +55,7 @@ $ yarn dev
 $ yarn build
 $ yarn start
 
-# generate static project
+# generate static site
 $ yarn generate
 ```
 
@@ -71,6 +71,20 @@ Using docker:
 Using docker-compose:
 - build image: `$ docker-compose build seedhodler`
 - run container: `$ docker-compose up`
+
+# Docker + Offline Machine standalone runner
+
+You can run the seedhodler tool in docker in your offline/cold storage machine that has docker installed. 
+
+- online-machine:
+    - build the image: `$ docker build -t seedhodler:local-build . `
+    - save the image: `$ docker save seedhodler:local-build`
+    - copy the zip file to another machine e.g. your offline/cold storage machine 
+- offline-machine (with docker):
+    - copy the `seedhodler.zip` file
+    - cd into the same directory
+    - load image: `$ docker load -i seedhodler.zip`
+    - run container: `$ docker run -it -p 4000:4000 seedhodler:local-build`
 
 # Dependencies
 

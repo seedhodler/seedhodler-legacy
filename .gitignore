@@ -86,3 +86,6 @@ sw.*
 
 # Mac OSX
 .DS_Store
+
+# Saved docker image
+seedhodler.zip
