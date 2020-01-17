@@ -12,6 +12,7 @@
     "build": "nuxt build",
     "start": "nuxt start",
     "generate": "nuxt generate",
+    "offline": "nuxt generate && node server.js",
     "build:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt build",
     "generate:gh-pages": "DEPLOY_ENV=GH_PAGES nuxt generate",
     "deploy:gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup"

@@ -29,19 +29,20 @@
 This tool aims to be an easy to use tool for securing your crypto (seeds / recovery phrases / mnemonics) via Shamir Secret Sharing, implementing [slip39](https://github.com/satoshilabs/slips/blob/master/slip-0039.md) from Trezor creators, Satoshi Labs. 
 
 The tool supports:
-- Easy phrase generation
+- Easy recovery phrase generation
 - Easy share generation and restoration
 - Group based share generation with variable thresholds from SLIP39
-- Multi-language seed / phrase generation
+- Multi-language recovery phrase generation
 - BIP32 info
 - BIP39 seed shortening
+- [Cryptosteel Capsules](https://cryptosteel.com/product/cryptosteel-capsule/?v=3a52f3c22ed6)
 
 
 ## Online Site (GH-PAGES) 
 
 - [seedhodler online](https://seedhodler.github.io/seedhodler/)
 
-## Build Setup
+## Build Static Site Setup
 
 ```bash
 # install dependencies
@@ -57,6 +58,19 @@ $ yarn start
 # generate static project
 $ yarn generate
 ```
+
+# Running standalone with Docker
+
+Prerequisites:
+ - docker
+
+Using docker:
+- build docker image: `$ docker build -t seedhodler:local-build . `
+- run container: `$ docker run -it -p 4000:4000 seedhodler:local-build`
+
+Using docker-compose:
+- build image: `$ docker-compose build seedhodler`
+- run container: `$ docker-compose up`
 
 # Dependencies
 
