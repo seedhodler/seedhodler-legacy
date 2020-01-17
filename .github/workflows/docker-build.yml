@@ -1,17 +1,15 @@
-name: Docker Image CI
+name: docker-build
+on: push
 
-on:
-    push:
-        branches:
-            - master
-            - gh-actions
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  docker-build:
+    name: docker-build
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@master
     - name: Get the version
       id: vars
       run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
-    - name: Build the tagged Docker image
-      run: docker build . --file Dockerfile --tag seedhodler:${{steps.vars.outputs.tag}}
+    - name: build image
+      run: |
+        docker build -t seedhodler:ci-build-${{steps.vars.outputs.tag}}
