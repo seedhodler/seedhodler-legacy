@@ -9,7 +9,8 @@ jobs:
     - uses: actions/checkout@master
     - name: Get the version
       id: vars
-      run: echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
+      run: |
+        echo ::set-output name=tag::$(echo ${GITHUB_REF:10})
     - name: build image
       run: |
-        docker build -t seedhodler:ci-build-${{steps.vars.outputs.tag}}
+        docker build -t "seedhodler:${{steps.vars.outputs.tag}}" .
