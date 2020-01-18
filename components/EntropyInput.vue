@@ -9,6 +9,9 @@
           <b-button :type="isGeneratingFromMouseMovements ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyWithMouseMovement">
             {{ isGeneratingFromMouseMovements ? 'Stop Generating' : 'Generate with Movement' }}
           </b-button>
+          <b-button :type="isGeneratingFromUserInput ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyFromUserInput">
+            {{ isGeneratingFromUserInput ? 'Stop Generating' : 'Generate from input' }}
+          </b-button>
           <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
             Reset
           </b-button>
@@ -26,9 +29,8 @@
         </p>
       </b-field>
     </b-field>
-    <b-field>
+    <b-field v-if="isGeneratingFromMouseMovements">
       <b-progress
-        v-if="isGeneratingFromMouseMovements"
         :show-value="true"
         :max="pointsPerCollection * pointArrayThreshold"
         :value="pointsGenerated"
@@ -38,6 +40,36 @@
         {{ pointsGenerated }} / {{ pointsPerCollection * pointArrayThreshold }}
       </b-progress>
     </b-field>
+    <div v-if="isGeneratingFromUserInput" class="spacer">
+      <b-field label-position="on-border" label="Manual Entropy Value Types">
+        <b-select v-model="manualInputType">
+          <option title="binary (base2)" value="binary">
+            binary (base2)
+          </option>
+          <option title="base6" value="base6">
+            base6
+          </option>
+          <option title="dice" value="dice">
+            dice
+          </option>
+          <option title="base10" value="base10">
+            base10
+          </option>
+          <option title="hex (base16)" value="hex">
+            hex (base16)
+          </option>
+        </b-select>
+      </b-field>
+      <b-field class="spacer-lg">
+        <b-input v-model="manualUserInput" type="textarea" />
+      </b-field>
+      <b-field label="Sanitized Input">
+        <b-input v-model="sanitizedInput" type="text" readonly disabled />
+      </b-field>
+      <b-field label="Raw Binary">
+        <b-input v-model="inputAsBinary" type="text" readonly disabled />
+      </b-field>
+    </div>
     <b-field v-if="showEntropyArray">
       <b-taglist attached>
         <b-tag type="is-dark">
@@ -74,6 +106,29 @@ const debounceFunction = (func, delay) => {
   timerId = setTimeout(func, delay)
 }
 
+const MANUAL_INPUT_TYPES = {
+  binary: {
+    regex: /(0|1)/g,
+    base: 2
+  },
+  dice: {
+    regex: /(1|2|3|4|5|6)/g
+  },
+  base6: {
+    regex: /(0|1|2|3|4|5)/g,
+    base: 6
+  },
+  base10: {
+    regex: /(0|1|2|3|4|5|6|7|8|9)/g,
+    base: 10
+  },
+  hex: {
+    regex: /[0-9a-f]+/i,
+    base: 16
+  }
+
+}
+
 export default {
   name: 'EntropyInput',
   components: {
@@ -85,7 +140,10 @@ export default {
   data () {
     return {
       isGeneratingFromMouseMovements: false,
+      isGeneratingFromUserInput: false,
       entropyGenerationProgress: 0,
+      manualUserInput: '',
+      manualInputType: 'binary',
       pointsPerCollection: 16,
       pointArrayThreshold: 8,
       entropyLastTickDelay: 100,
@@ -96,6 +154,33 @@ export default {
       pointsGenerated: 0,
       collectedEntropyPoints: [],
       currentEntropyPoints: []
+    }
+  },
+  computed: {
+    sanitizedInput () {
+      console.log(MANUAL_INPUT_TYPES[this.manualInputType].regex)
+      const matches = this.manualUserInput.match(MANUAL_INPUT_TYPES[this.manualInputType].regex)
+      console.log(JSON.stringify(matches))
+      if (matches) {
+        return matches.join('').toUpperCase()
+      } else {
+        return ''
+      }
+    },
+    inputAsBinary () {
+      if (!this.sanitizedInput.length > 0) {
+        return ''
+      }
+
+      if (this.manualInputType === 'binary') {
+        return this.sanitizedInput
+      } else {
+        let binaryRep = (parseInt(this.sanitizedInput, MANUAL_INPUT_TYPES[this.manualInputType].base).toString(2)).padStart(4, '0')
+        if (binaryRep.length % 2 !== 0) {
+          binaryRep = binaryRep.padStart(binaryRep.length + 1, '0')
+        }
+        return binaryRep
+      }
     }
   },
   watch: {
@@ -114,6 +199,7 @@ export default {
       this.pointsGenerated = 0
       this.collectedEntropyPoints = []
       this.currentEntropyPoints = []
+      this.manualUserInput = ''
     },
     generateRandomEntropy () {
       const initArray = wordsToUint8Array(Number(this.words))
@@ -132,6 +218,23 @@ export default {
       } else {
         window.removeEventListener('mousemove', this.addEntropy)
       }
+    },
+    validateManualInput (event) {
+      console.log('Im validating something')
+      return true
+    },
+    generateEntropyFromUserInput (event) {
+      this.isGeneratingFromUserInput = !this.isGeneratingFromUserInput
+      const initArray = wordsToUint8Array(Number(this.words))
+      const entropyArray = this.entropy || window.crypto.getRandomValues(initArray)
+      // this.pointsGenerated = 0
+      // this.$emit('updateEntropy', entropyArray)
+      // if (this.isGeneratingFromMouseMovements) {
+      //   this.entropyGenerationProgress = 0
+      //   window.addEventListener('mousemove', this.addEntropy)
+      // } else {
+      //   window.removeEventListener('mousemove', this.addEntropy)
+      // }
     },
     stopGeneratingEntropy () {
       this.isGeneratingFromMouseMovements = false
