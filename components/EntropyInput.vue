@@ -6,8 +6,8 @@
           <b-button size="is-small" type="is-info" outlined @click="generateRandomEntropy">
             Generate Random
           </b-button>
-          <b-button :type="isGeneratingEntropy ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropy">
-            {{ isGeneratingEntropy ? 'Stop Generating' : 'Generate Manually' }}
+          <b-button :type="isGeneratingFromMouseMovements ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyWithMouseMovement">
+            {{ isGeneratingFromMouseMovements ? 'Stop Generating' : 'Generate with Movement' }}
           </b-button>
           <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
             Reset
@@ -28,7 +28,7 @@
     </b-field>
     <b-field>
       <b-progress
-        v-if="isGeneratingEntropy"
+        v-if="isGeneratingFromMouseMovements"
         :show-value="true"
         :max="pointsPerCollection * pointArrayThreshold"
         :value="pointsGenerated"
@@ -84,7 +84,7 @@ export default {
   },
   data () {
     return {
-      isGeneratingEntropy: false,
+      isGeneratingFromMouseMovements: false,
       entropyGenerationProgress: 0,
       pointsPerCollection: 16,
       pointArrayThreshold: 8,
@@ -111,19 +111,22 @@ export default {
       this.$emit('clearEntropy')
       this.lastEntropyTick = null
       this.entropyGenerationProgress = 0
+      this.pointsGenerated = 0
+      this.collectedEntropyPoints = []
+      this.currentEntropyPoints = []
     },
     generateRandomEntropy () {
       const initArray = wordsToUint8Array(Number(this.words))
       const entropyArray = window.crypto.getRandomValues(initArray)
       this.$emit('updateEntropy', entropyArray)
     },
-    generateEntropy (event) {
-      this.isGeneratingEntropy = !this.isGeneratingEntropy
+    generateEntropyWithMouseMovement (event) {
+      this.isGeneratingFromMouseMovements = !this.isGeneratingFromMouseMovements
       const initArray = wordsToUint8Array(Number(this.words))
       const entropyArray = this.entropy || window.crypto.getRandomValues(initArray)
       this.pointsGenerated = 0
       this.$emit('updateEntropy', entropyArray)
-      if (this.isGeneratingEntropy) {
+      if (this.isGeneratingFromMouseMovements) {
         this.entropyGenerationProgress = 0
         window.addEventListener('mousemove', this.addEntropy)
       } else {
@@ -131,7 +134,7 @@ export default {
       }
     },
     stopGeneratingEntropy () {
-      this.isGeneratingEntropy = false
+      this.isGeneratingFromMouseMovements = false
       this.lastEntropyTick = null
       window.removeEventListener('mousemove', this.addEntropy)
     },
@@ -161,7 +164,7 @@ export default {
             this.lastEntropyTick = ts
           }
 
-          if (this.collectedEntropyPoints.length >= this.pointArrayThreshold && this.isGeneratingEntropy) {
+          if (this.collectedEntropyPoints.length >= this.pointArrayThreshold && this.isGeneratingFromMouseMovements) {
             const loadingComponent = this.$buefy.loading.open({
               container: this.$refs.entropyInputElement.$el
             })
