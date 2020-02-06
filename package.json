@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.9.5",
-    "@nuxtjs/pwa": "^3.0.0-beta.16",
+    "@nuxtjs/pwa": "^3.0.0-beta.20",
     "bip32": "^2.0.4",
     "bip39": "^3.0.2",
     "nuxt": "^2.11.0",
