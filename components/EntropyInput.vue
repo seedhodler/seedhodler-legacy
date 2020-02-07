@@ -237,8 +237,8 @@ export default {
     },
     formattedInputAsBinary () {
       const bytes = []
-      const binAndCheckSum = this.inputAsBinary
-      for (let k = 0; k <= this.minBitsOfEntropy - 11; k += 11) {
+      const binAndCheckSum = this.inputAsBinary + this.binaryChecksum
+      for (let k = 0; k <= binAndCheckSum.length - 11; k += 11) {
         bytes.push(binAndCheckSum.substring(k, k + 11))
       }
       return bytes.join(' ')
