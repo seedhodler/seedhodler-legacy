@@ -5,7 +5,7 @@ const port = process.env.PORT || 4000
 const staticFilesRoot = path.join(__dirname, 'dist')
 
 process.on('SIGINT', () => {
-  console.info("\nInterrupted....killing server")
+  console.info('\nInterrupted....killing server')
   process.exit(0)
 })
 
