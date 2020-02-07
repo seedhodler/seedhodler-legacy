@@ -4,13 +4,13 @@
       <b-field>
         <p class="control">
           <b-button size="is-small" type="is-info" outlined @click="generateRandomEntropy">
-            Generate Random
-          </b-button>
-          <b-button :type="isGeneratingFromMouseMovements ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyWithMouseMovement">
-            {{ isGeneratingFromMouseMovements ? 'Stop Generating' : 'Generate with Movement' }}
+            Random
           </b-button>
           <b-button :type="isGeneratingFromUserInput ? 'is-primary' : 'is-info'" size="is-small" outlined @click="toggleGenerateFromUserInput">
-            {{ isGeneratingFromUserInput ? 'Stop Generating' : 'Generate from input' }}
+            {{ isGeneratingFromUserInput ? 'Cancel' : 'Manual' }}
+          </b-button>
+          <b-button :type="isGeneratingFromMouseMovements ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyWithMouseMovement">
+            {{ isGeneratingFromMouseMovements ? 'Stop' : 'Mouse' }}
           </b-button>
           <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
             Reset
@@ -65,21 +65,47 @@
           </option>
         </b-select>
       </b-field>
-      <b-field class="spacer-lg">
+      <b-field class="spacer-lg" label="Entropy">
         <b-input v-model="manualUserInput" type="textarea" />
       </b-field>
       <b-field label="Sanitized Input">
-        <b-input v-model="sanitizedInput" type="text" readonly disabled />
+        <div class="tile is-ancestor">
+          <div class="tile is-4 is-vertical is-parent">
+            <div class="tile is-child box">
+              <p class="title">
+                Info
+              </p>
+              <p><strong>Input:</strong> {{ manualInputType }}</p>
+              <p><strong>Bits:</strong> {{ inputAsBinary.length }} / {{ minBitsOfEntropy }}</p>
+              <p><strong>Words:</strong> {{ Math.floor((inputAsBinary.length + binaryChecksum.length) / 11) }}</p>
+              <p><strong>Checksum:</strong> {{ binaryChecksum || 'N/A' }}</p>
+            </div>
+          </div>
+          <div class="tile is-parent">
+            <div class="tile is-child box">
+              <p class="title">
+                BIP39
+              </p>
+              <p><strong>Binary:</strong></p>
+              <p>{{ formattedInputAsBinary }}</p>
+              <br>
+              <p><strong>Word Indexes:</strong></p>
+              <p>{{ wordIndexes }}</p>
+              <br/>
+              <p><strong>Words:</strong></p>
+              <p>{{ wordIndexesValues }}</p>
+            </div>
+          </div>
+        </div>
       </b-field>
-      <b-field :label="'Raw Binary (' + inputAsBinary.length + ' / min > ' + minBitsOfEntropy + ')'">
-        <b-input v-model="inputAsBinary" type="text" readonly disabled />
-      </b-field>
+
       <b-field>
         <b-button
           type="is-warning"
+          :disabled="!validManualInput"
           @click="generateEntropyFromUserInput"
         >
-          Generate phrase from this manual entropy
+          Use Raw Entropy
         </b-button>
       </b-field>
     </div>
@@ -108,6 +134,7 @@
 
 <script>
 import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash, mouseMovementEntropy, mouseMovementToHmacEntropy, binaryStrToEntropyArray } from '~/helpers/entropyUtils'
+import { deriveChecksumBits, indexToWord } from '~/helpers/bip39utils'
 
 let timerId = null
 
@@ -180,10 +207,11 @@ export default {
           return 256
       }
     },
+    validManualInput () {
+      return this.inputAsBinary.length && this.inputAsBinary.length >= this.minBitsOfEntropy
+    },
     sanitizedInput () {
-      console.log(MANUAL_INPUT_TYPES[this.manualInputType].regex)
       const matches = this.manualUserInput.match(MANUAL_INPUT_TYPES[this.manualInputType].regex)
-      console.log(JSON.stringify(matches))
       if (matches) {
         return matches.join('').toUpperCase()
       } else {
@@ -196,7 +224,9 @@ export default {
       }
 
       if (this.manualInputType === 'binary') {
-        return this.sanitizedInput
+        const start = this.sanitizedInput.length - this.minBitsOfEntropy
+        const binaryStr = this.sanitizedInput.substring(start)
+        return binaryStr
       } else {
         let binaryRep = (parseInt(this.sanitizedInput, MANUAL_INPUT_TYPES[this.manualInputType].base).toString(2)).padStart(4, '0')
         if (binaryRep.length % 2 !== 0) {
@@ -204,6 +234,23 @@ export default {
         }
         return binaryRep
       }
+    },
+    formattedInputAsBinary () {
+      const bytes = []
+      const binAndCheckSum = this.inputAsBinary
+      for (let k = 0; k <= this.minBitsOfEntropy - 11; k += 11) {
+        bytes.push(binAndCheckSum.substring(k, k + 11))
+      }
+      return bytes.join(' ')
+    },
+    binaryChecksum () {
+      return deriveChecksumBits(binaryStrToEntropyArray(this.inputAsBinary))
+    },
+    wordIndexes () {
+      return this.formattedInputAsBinary.split(' ').map(byte => parseInt(byte, 2))
+    },
+    wordIndexesValues () {
+      return this.wordIndexes.map(index => indexToWord(index))
     }
   },
   watch: {
