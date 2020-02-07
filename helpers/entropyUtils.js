@@ -102,8 +102,12 @@ export const hexStringToByteArray = (hexString) => {
   return result
 }
 
-// export const uint8ArrayToHash = async (message) => {
-//   const hashBuffer = await window.crypto.subtle.digest('SHA-256', message) // hash the message
-//   const hashArray = Array.from(new Uint8Array(hashBuffer)) // convert buffer to byte array
-//   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('') // convert bytes to hex string
-// }
+export const binaryStrToEntropyArray = (binaryStr) => {
+  const entropyArray = []
+  for (let i = 0; i < binaryStr.length / 8; i++) {
+    const byteAsBits = binaryStr.substring(i * 8, i * 8 + 8)
+    const entropyByte = parseInt(byteAsBits, 2)
+    entropyArray.push(entropyByte)
+  }
+  return entropyArray
+}

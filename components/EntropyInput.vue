@@ -9,7 +9,7 @@
           <b-button :type="isGeneratingFromMouseMovements ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyWithMouseMovement">
             {{ isGeneratingFromMouseMovements ? 'Stop Generating' : 'Generate with Movement' }}
           </b-button>
-          <b-button :type="isGeneratingFromUserInput ? 'is-primary' : 'is-info'" size="is-small" outlined @click="generateEntropyFromUserInput">
+          <b-button :type="isGeneratingFromUserInput ? 'is-primary' : 'is-info'" size="is-small" outlined @click="toggleGenerateFromUserInput">
             {{ isGeneratingFromUserInput ? 'Stop Generating' : 'Generate from input' }}
           </b-button>
           <b-button size="is-small" type="is-info" outlined @click="clearEntropy">
@@ -41,22 +41,27 @@
       </b-progress>
     </b-field>
     <div v-if="isGeneratingFromUserInput" class="spacer">
-      <b-field label-position="on-border" label="Manual Entropy Value Types">
+      <b-field class="spacer-top-lg">
+        <b-message size="is-small" type="is-warning" has-icon>
+          Using manual entropy is extremely dangerous when used incorrectly. Only use this option if you know what you are doing.
+        </b-message>
+      </b-field>
+      <b-field class="spacer-top-lg" label-position="on-border" label="Manual Entropy Value Types">
         <b-select v-model="manualInputType">
           <option title="binary (base2)" value="binary">
             binary (base2)
           </option>
-          <option title="base6" value="base6">
-            base6
+          <option title="base6" value="base6" disabled>
+            base6 (disabled)
           </option>
-          <option title="dice" value="dice">
-            dice
+          <option title="dice" value="dice" disabled>
+            dice  (disabled)
           </option>
-          <option title="base10" value="base10">
-            base10
+          <option title="base10" value="base10" disabled>
+            base10  (disabled)
           </option>
-          <option title="hex (base16)" value="hex">
-            hex (base16)
+          <option title="hex (base16)" value="hex" disabled>
+            hex (base16)  (disabled)
           </option>
         </b-select>
       </b-field>
@@ -66,8 +71,16 @@
       <b-field label="Sanitized Input">
         <b-input v-model="sanitizedInput" type="text" readonly disabled />
       </b-field>
-      <b-field label="Raw Binary">
+      <b-field :label="'Raw Binary (' + inputAsBinary.length + ' / min > ' + minBitsOfEntropy + ')'">
         <b-input v-model="inputAsBinary" type="text" readonly disabled />
+      </b-field>
+      <b-field>
+        <b-button
+          type="is-warning"
+          @click="generateEntropyFromUserInput"
+        >
+          Generate phrase from this manual entropy
+        </b-button>
       </b-field>
     </div>
     <b-field v-if="showEntropyArray">
@@ -94,7 +107,7 @@
 </template>
 
 <script>
-import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash, mouseMovementEntropy, mouseMovementToHmacEntropy } from '~/helpers/entropyUtils'
+import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash, mouseMovementEntropy, mouseMovementToHmacEntropy, binaryStrToEntropyArray } from '~/helpers/entropyUtils'
 
 let timerId = null
 
@@ -157,6 +170,16 @@ export default {
     }
   },
   computed: {
+    minBitsOfEntropy () {
+      switch (Number(this.words)) {
+        case 12:
+          return 128
+        case 24:
+          return 256
+        default:
+          return 256
+      }
+    },
     sanitizedInput () {
       console.log(MANUAL_INPUT_TYPES[this.manualInputType].regex)
       const matches = this.manualUserInput.match(MANUAL_INPUT_TYPES[this.manualInputType].regex)
@@ -223,10 +246,13 @@ export default {
       console.log('Im validating something')
       return true
     },
-    generateEntropyFromUserInput (event) {
+    toggleGenerateFromUserInput () {
       this.isGeneratingFromUserInput = !this.isGeneratingFromUserInput
+    },
+    generateEntropyFromUserInput (event) {
       const initArray = wordsToUint8Array(Number(this.words))
-      const entropyArray = this.entropy || window.crypto.getRandomValues(initArray)
+      const entropyArray = binaryStrToEntropyArray(this.inputAsBinary)
+      this.$emit('updateEntropy', entropyArray)
       // this.pointsGenerated = 0
       // this.$emit('updateEntropy', entropyArray)
       // if (this.isGeneratingFromMouseMovements) {
