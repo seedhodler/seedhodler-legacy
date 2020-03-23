@@ -2148,10 +2148,10 @@ bs58check@<3.0.0, bs58check@^2.1.1:
     create-hash "^1.1.0"
     safe-buffer "^5.1.2"
 
-buefy@^0.8.12:
-  version "0.8.12"
-  resolved "https://registry.yarnpkg.com/buefy/-/buefy-0.8.12.tgz#416e8d0a6af346f1b5e61ae6145a2077b27ed490"
-  integrity sha512-scKb+0piTAEYk8mopu5HzshlGsT0K9ChlfkGhQgAF7jC9lH3Ta7anYXG+l8uBoSpqgChK0H19jPP55FbeKn1nA==
+buefy@^0.8.13:
+  version "0.8.13"
+  resolved "https://registry.yarnpkg.com/buefy/-/buefy-0.8.13.tgz#90ce1645807c15d81f584dc78a2090a0feb7a70b"
+  integrity sha512-SpJq1Bl569mT6YujrEpyqn1al6U2PcBBQkVdgdKFrW+zjh1BAcs3+sNx7+r0tPSBsLYsSU2ZZsfkFzWOnOTX8A==
   dependencies:
     bulma "0.7.5"
 
@@ -3499,17 +3499,17 @@ eslint-ast-utils@^1.1.0:
     lodash.get "^4.4.2"
     lodash.zip "^4.2.0"
 
-eslint-config-prettier@^6.10.0:
-  version "6.10.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.10.0.tgz#7b15e303bf9c956875c948f6b21500e48ded6a7f"
-  integrity sha512-AtndijGte1rPILInUdHjvKEGbIV06NuvPrqlIEaEaWtbtvJh464mDeyGMdZEQMsGvC0ZVkiex1fSNcC4HAbRGg==
+eslint-config-prettier@^6.10.1:
+  version "6.10.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-6.10.1.tgz#129ef9ec575d5ddc0e269667bf09defcd898642a"
+  integrity sha512-svTy6zh1ecQojvpbJSgH3aei/Rt7C6i090l5f2WQ4aB05lYHeZIR1qL4wZyyILTbtmnbHP5Yn8MrsOJMGa8RkQ==
   dependencies:
     get-stdin "^6.0.0"
 
-eslint-config-standard@>=14.1.0, eslint-config-standard@^14.1.0:
-  version "14.1.0"
-  resolved "https://registry.yarnpkg.com/eslint-config-standard/-/eslint-config-standard-14.1.0.tgz#b23da2b76fe5a2eba668374f246454e7058f15d4"
-  integrity sha512-EF6XkrrGVbvv8hL/kYa/m6vnvmUT+K82pJJc4JJVMM6+Qgqh0pnwprSxdduDLB9p/7bIxD+YV5O0wfb8lmcPbA==
+eslint-config-standard@>=14.1.1, eslint-config-standard@^14.1.0:
+  version "14.1.1"
+  resolved "https://registry.yarnpkg.com/eslint-config-standard/-/eslint-config-standard-14.1.1.tgz#830a8e44e7aef7de67464979ad06b406026c56ea"
+  integrity sha512-Z9B+VR+JIXRxz21udPTL9HpFMyoMUEeX1G251EQ6e05WD9aPVtVBn09XUmZ259wCMlCDmYDSZG62Hhm+ZTJcUg==
 
 eslint-import-resolver-node@^0.3.2:
   version "0.3.3"
@@ -3582,10 +3582,10 @@ eslint-plugin-import@^2.20.1:
     read-pkg-up "^2.0.0"
     resolve "^1.12.0"
 
-eslint-plugin-jest@>=23.8.1, eslint-plugin-jest@^23.7.0:
-  version "23.8.1"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-23.8.1.tgz#247025e8a51b3a25a4cc41166369b0bfb4db83b7"
-  integrity sha512-OycLNqPo/2EfO6kTqnmsu1khz1gTIOxGl3ThIVwL5/oycDF4pm5uNDyvFelNLdpr4COUuM8PVi3963NEG1Efpw==
+eslint-plugin-jest@>=23.8.2, eslint-plugin-jest@^23.7.0:
+  version "23.8.2"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jest/-/eslint-plugin-jest-23.8.2.tgz#6f28b41c67ef635f803ebd9e168f6b73858eb8d4"
+  integrity sha512-xwbnvOsotSV27MtAe7s8uGWOori0nUsrXh2f1EnpmXua8sDfY6VZhHAhHg2sqK7HBNycRQExF074XSZ7DvfoFg==
   dependencies:
     "@typescript-eslint/experimental-utils" "^2.5.0"
 
@@ -6211,12 +6211,12 @@ number-is-nan@^1.0.0:
   resolved "https://registry.yarnpkg.com/number-is-nan/-/number-is-nan-1.0.1.tgz#097b602b53422a522c1afb8790318336941a011d"
   integrity sha1-CXtgK1NCKlIsGvuHkDGDNpQaAR0=
 
-nuxt-buefy@^0.3.23:
-  version "0.3.23"
-  resolved "https://registry.yarnpkg.com/nuxt-buefy/-/nuxt-buefy-0.3.23.tgz#e1b269f37c0de0acb27c3ee3f2a3de0b11316389"
-  integrity sha512-3sF3VOwz05PB5ehVPIKxAMO2WBO6CL0j15COsFs4SspkKB+ORa92BZVOrJqp9wlqqSxFtpGad8tw0OYzE5paHQ==
+nuxt-buefy@^0.3.24:
+  version "0.3.24"
+  resolved "https://registry.yarnpkg.com/nuxt-buefy/-/nuxt-buefy-0.3.24.tgz#2517460265b5ae4c2b1b59095762e9af3b6abbee"
+  integrity sha512-OxLpI/KiaWdHiMW3rfYGFBroSVlvfdmFzL9o+Z3l2LkTe1EQvGwdw7wa2HC/7ssFKPzVB4gIYXzqdtQlSbXxUQ==
   dependencies:
-    buefy "^0.8.12"
+    buefy "^0.8.13"
 
 nuxt@^2.12.0:
   version "2.12.0"
