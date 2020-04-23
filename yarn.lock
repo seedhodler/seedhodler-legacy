@@ -8316,10 +8316,10 @@ slice-ansi@^2.1.0:
     astral-regex "^1.0.0"
     is-fullwidth-code-point "^2.0.0"
 
-slip39@^0.1.6:
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/slip39/-/slip39-0.1.6.tgz#f30a127f0d0aec87aecbe1cb5e8b880d0de41822"
-  integrity sha512-BbrIdJNzqeMw+NBofQSG9bd/AEYP2P635zzKJT3S1cvpEgsdDo8qY+svrn5nTLDgy/BDu+7NfKmd3q/Kzpsoxg==
+slip39@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/slip39/-/slip39-0.1.7.tgz#b5b117a906f0e602a1ee6476eaea6ca371a1e925"
+  integrity sha512-PRhj9634iRLRkof9TRfK8JS5l3vd1C7VBj7YW+cDux4qV42DUZxdBWkwjg/fzdGbz2+NLmucTNQ7Nk3fd1/uzQ==
 
 snapdragon-node@^2.0.1:
   version "2.1.1"
