@@ -26,7 +26,7 @@
     "nuxt": "^2.12.2",
     "nuxt-buefy": "^0.3.26",
     "push-dir": "^0.4.1",
-    "slip39": "^0.1.6",
+    "slip39": "^0.1.7",
     "utf8": "^3.0.0"
   },
   "devDependencies": {
