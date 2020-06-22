@@ -18,13 +18,13 @@
     "deploy:gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup"
   },
   "dependencies": {
-    "@nuxtjs/axios": "^5.9.7",
+    "@nuxtjs/axios": "^5.11.0",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
     "bip32": "^2.0.4",
     "bip39": "^3.0.2",
     "create-hash": "^1.2.0",
     "nuxt": "^2.12.2",
-    "nuxt-buefy": "^0.3.26",
+    "nuxt-buefy": "^0.3.31",
     "push-dir": "^0.4.1",
     "slip39": "^0.1.7",
     "utf8": "^3.0.0"
@@ -35,7 +35,7 @@
     "@nuxtjs/style-resources": "^1.0.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
+    "eslint-config-prettier": "^6.11.0",
     "eslint-config-standard": ">=14.1.1",
     "eslint-plugin-import": "^2.21.2",
     "eslint-plugin-jest": ">=23.16.0",
@@ -45,9 +45,9 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": ">=4.0.1",
     "eslint-plugin-vue": "^6.2.1",
-    "node-sass": "^4.13.1",
+    "node-sass": "^4.14.1",
     "nodemon": "^2.0.2",
-    "prettier": "^2.0.4",
+    "prettier": "^2.0.5",
     "sass-loader": "^8.0.2"
   }
 }
