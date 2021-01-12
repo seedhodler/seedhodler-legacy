@@ -22,7 +22,7 @@ export const shortMnemonicToOriginal = (language, shortMnemonic) => {
 
 export const generateMnemonic = (language, wordCount) => {
   bip39.setDefaultWordlist(language)
-  const strength = Math.floor(parseInt(wordCount) * 10.66666666666) + 1
+  const strength = Math.ceil(parseInt(wordCount) * 32 / 3)
   return bip39.generateMnemonic(strength)
 }
 

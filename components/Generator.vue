@@ -72,15 +72,25 @@
       <b-tab-item>
         <template slot="header">
           <b-icon icon="circle-edit-outline" />
-          <span> Phrase <b-tag rounded> BIP 39 </b-tag> </span>
+          <span> Phrase <b-tag rounded> BIP 39 / SLIP 39 </b-tag> </span>
         </template>
+
+        <b-field label="Wallet standard:" horizontal>
+          <b-radio v-model="slip39" :native-value="false" @change="seed">
+            BIP 39
+          </b-radio>
+          <b-radio v-model="slip39" :native-value="true">
+            SLIP 39
+          </b-radio>
+        </b-field>
+
         <b-field
           :type="mnemonic ? validMnemonic ? 'is-success': 'is-danger' : ''"
           :message="(mnemonic ? validMnemonic ? 'valid ' + '(' + displayedMnemonic.length + ')': 'invalid ' + '(' + displayedMnemonic.length + ')' : '') "
         >
           <b-input v-model="displayedMnemonic" type="textarea" expanded />
         </b-field>
-        <b-field position="is-right">
+        <b-field position="is-left">
           <b-switch
             v-model="shortenMnemonic"
             :rounded="false"
@@ -97,7 +107,7 @@
           <b-icon icon="call-split" />
           <span> Derivation <b-tag rounded> BIP 32 </b-tag> </span>
         </template>
-        <NodeInfo :seed="seed" />
+        <NodeInfo :slip39="slip39" :seed="seed" />
       </b-tab-item>
     </b-tabs>
     <template v-if="mnemonic">
@@ -166,7 +176,10 @@
             <table class="table is-fullwidth is-striped is-bordered">
               <thead>
                 <th>Group {{ groupIndex + 1 }}</th>
-                <th>Share</th>
+                <template v-if="!slip39">
+                  <th>BIP39 Share</th>
+                </template>
+                <th>SLIP39 Share</th>
                 <th />
               </thead>
               <tbody>
@@ -188,6 +201,16 @@
                     <b-input
                       :id="'sharetext-' + groupIndex + '-' + shareIndex"
                       :value="shareMnemonic"
+                      type="textarea"
+                      readonly
+                      expanded
+                    />
+                  </td>
+
+                  <td v-if="!slip39">
+                    <b-input
+                      :id="'compat-sharetext-' + groupIndex + '-' + shareIndex"
+                      :value="compatibilityShares[groupIndex].mnemonicShares[shareIndex]"
                       type="textarea"
                       readonly
                       expanded
@@ -230,6 +253,7 @@ export default {
   },
   data () {
     return {
+      slip39: false,
       shortenMnemonic: false,
       language: 'english',
       words: '12',
@@ -237,6 +261,7 @@ export default {
       shortMnemonic: null,
       recoveredSecret: null,
       allShares: null,
+      compatibilityShares: null,
       passphrase: '',
       masterThreshold: 1,
       thresholds: [3],
@@ -272,6 +297,11 @@ export default {
       }
     },
     seed () {
+      if (!this.validMnemonic)
+        return Buffer.alloc(16)
+      if (this.slip39) {
+        return new Buffer(mnemonicToEntropy(this.mnemonic), 'hex')
+      }
       return mnemonicToSeed(this.mnemonic)
     }
   },
@@ -311,7 +341,9 @@ export default {
       const groups = this.thresholds.map((t, i) => [t, this.shareGroups[i]])
       const passphrase = this.passphrase
       const masterSecret = hexStringToByteArray(mnemonicToEntropy(this.mnemonic))
+      const seed = new Uint8Array(mnemonicToSeed(this.mnemonic))
       this.allShares = getFormattedShares(masterSecret, passphrase, this.masterThreshold, groups)
+      this.compatibilityShares = getFormattedShares(seed, passphrase, this.masterThreshold, groups)
     },
     generateMnemonic () {
       if (this.entropy) {
