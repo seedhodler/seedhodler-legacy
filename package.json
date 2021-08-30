@@ -20,7 +20,7 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/pwa": "^3.0.0-beta.20",
-    "bip32": "^2.0.4",
+    "bip32": "^2.0.6",
     "bip39": "^3.0.2",
     "create-hash": "^1.2.0",
     "nuxt": "^2.12.2",
