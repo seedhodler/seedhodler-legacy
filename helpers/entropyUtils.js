@@ -1,3 +1,5 @@
+import pbkdf2 from 'pbkdf2'
+
 export const wordsToUint8Array = (words) => {
   switch (Number(words)) {
     case 12:
@@ -13,49 +15,15 @@ export const wordsToUint8Array = (words) => {
 
 export const mouseMovementEntropy = (x, y) => {
   // baseKey generation based on http://phrack.org/issues/59/15.html
-  const leastSignificantX = parseInt((x).toString(2).slice(-4) + (y).toString(2).slice(-4), 2)
-  const leastSignificantTime = parseInt(window.performance.now().toString(2).slice(-8), 2)
-  const res = leastSignificantX ^ leastSignificantTime
-  return res
-}
-
-export const getKeyMaterial = async (mouseMovemenntEntropy) => {
-  // Generate keyMaterial using PBKDF2 from low entropy input source. Used to derive a proper key later
-  // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/importKey
-  // https://github.com/mdn/dom-examples/blob/master/web-crypto/derive-key/pbkdf2.js
-
-  const keyMaterial = await window.crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(mouseMovemenntEntropy),
-    { name: 'PBKDF2' },
-    false,
-    ['deriveBits', 'deriveKey']
-  )
-
-  return keyMaterial
-}
-
-const PBKDF2 = {
-  name: 'PBKDF2',
-  iterations: 100000,
-  hash: 'SHA-256'
-}
-
-const HMAC = { name: 'HMAC', hash: 'SHA-256' }
-
-export const deriveKey = async (keyMaterial, salt) => {
-  // Derive PDKDF2 key from keyMaterial
-  // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/deriveKey
-
-  const derivedKey = await window.crypto.subtle.deriveKey(
-    { ...PBKDF2, salt },
-    keyMaterial,
-    HMAC,
-    true,
-    ['sign', 'verify']
-  )
-
-  return derivedKey
+  const perm = (x ^ y) & 0x10
+  const leastSignificantX = ((perm ? x : y) & 0x0f) | (((perm ? y : x) & 0x0f) << 4)
+  const time = window.performance.now()
+  let leastSignificantTime = (time & 0xff) | ((time >> 8) & 0xff)
+  // use full precision (65 MHz) of timer (might not be available)
+  for (let i = 8; i <= 16; i += 8) {
+    leastSignificantTime ^= (1 << i) * time & 0xff
+  }
+  return leastSignificantX ^ leastSignificantTime
 }
 
 export const mouseMovementToHmacEntropy = async (mouseMovementEntropy, previousHmacEntropy) => {
@@ -65,27 +33,22 @@ export const mouseMovementToHmacEntropy = async (mouseMovementEntropy, previousH
     return previousHmacEntropy
   }
 
-  const len = previousHmacEntropy.length
-  const message = new Uint8Array(previousHmacEntropy)
-  const salt = window.crypto.getRandomValues(new Uint8Array(16))
-  const keyMaterial = await getKeyMaterial(mouseMovementEntropy)
-  const key = await deriveKey(keyMaterial, salt)
-  const signature = await window.crypto.subtle.sign(
-    'HMAC',
-    key,
-    message
-  )
+  // support up to 256 bits of entropy
+  return Promise.resolve().then(() => new Promise( (resolve, reject) => {
+    const len = previousHmacEntropy.length
+    const key = new Uint8Array(previousHmacEntropy)
+    const salt = new Uint8Array(mouseMovementEntropy)
 
-  return new Uint8Array(signature, 0, len)
-}
-
-export const getRandomInt = (max) => {
-  return Math.floor(secureMathRandom() * Math.floor(max))
-}
-
-export const secureMathRandom = () => {
-  // Divide a random UInt32 by the maximum value (2^32 -1) to get a result between 0 and 1
-  return window.crypto.getRandomValues(new Uint32Array(1))[0] / 4294967295
+    const callback = (err, derivedKey) => {
+      if (err) {
+        return reject(err)
+      }
+      else {
+        return resolve(derivedKey)
+      }
+    }
+    pbkdf2.pbkdf2(key, salt, 100000, len, 'sha256', callback)
+  }))
 }
 
 export const byteArrayToHexString = (byteArray) => {

@@ -112,15 +112,15 @@
     <b-field v-if="showEntropyArray">
       <b-taglist attached>
         <b-tag type="is-dark">
-          Entropy from HMAC
+          Entropy Seed
         </b-tag>
         <b-tag type="is-danger">
-          {{ entropy }}
+          {{ entropyAsHexString }}
         </b-tag>
       </b-taglist>
     </b-field>
-    <b-field v-for="(collectedPoints, index) in collectedEntropyPoints" :key="index">
-      <b-taglist attached>
+    <b-field v-for="(collectedPoints, index) in collectedEntropyPoints.concat(currentEntropyPoints.length ? [currentEntropyPoints] : [])" :key="index">
+      <b-taglist v-if="showEntropyArray" attached>
         <b-tag type="is-dark">
           {{ index }}
         </b-tag>
@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { uint8ArrayCoordinateRandomize, wordsToUint8Array, uint8ArrayToHash, mouseMovementEntropy, mouseMovementToHmacEntropy, binaryStrToEntropyArray } from '~/helpers/entropyUtils'
+import { wordsToUint8Array, mouseMovementEntropy, mouseMovementToHmacEntropy, binaryStrToEntropyArray } from '~/helpers/entropyUtils'
 import { deriveChecksumBits, indexToWord } from '~/helpers/bip39utils'
 
 let timerId = null
@@ -185,7 +185,7 @@ export default {
       manualUserInput: '',
       manualInputType: 'binary',
       pointsPerCollection: 16,
-      pointArrayThreshold: 8,
+      pointArrayThreshold: Number(this.words) / 3, // assume entropy of 2 bits per point
       entropyLastTickDelay: 100,
       lastX: 0,
       lastY: 0,
@@ -198,14 +198,7 @@ export default {
   },
   computed: {
     minBitsOfEntropy () {
-      switch (Number(this.words)) {
-        case 12:
-          return 128
-        case 24:
-          return 256
-        default:
-          return 256
-      }
+      return Math.ceil(Number(this.words) * 32 / 3)
     },
     validManualInput () {
       return this.inputAsBinary.length && this.inputAsBinary.length >= this.minBitsOfEntropy
@@ -235,6 +228,9 @@ export default {
         return binaryRep
       }
     },
+    entropyAsHexString() {
+      return this.entropy === null ? '' : '0x' + Buffer.from(this.entropy.buffer).toString('hex')
+    },
     formattedInputAsBinary () {
       const bytes = []
       const binAndCheckSum = this.inputAsBinary + this.binaryChecksum
@@ -255,7 +251,18 @@ export default {
   },
   watch: {
     words () {
-      this.generateRandomEntropy()
+      const oldEntropy = this.entropy
+      const newEntropy = this.generateRandomEntropy()
+      this.pointArrayThreshold = Number(this.words) / 3
+      if (oldEntropy && oldEntropy.length > 0) {
+        Buffer.from(oldEntropy.buffer).copy(
+          Buffer.from(newEntropy.buffer),
+          0,
+          0,
+          Math.min(oldEntropy.length, newEntropy.length)
+        )
+        this.$emit('updateEntropy', newEntropy)
+      }
     }
   },
   methods: {
@@ -275,13 +282,12 @@ export default {
       const initArray = wordsToUint8Array(Number(this.words))
       const entropyArray = window.crypto.getRandomValues(initArray)
       this.$emit('updateEntropy', entropyArray)
+      return entropyArray
     },
     generateEntropyWithMouseMovement (event) {
       this.isGeneratingFromMouseMovements = !this.isGeneratingFromMouseMovements
-      const initArray = wordsToUint8Array(Number(this.words))
-      const entropyArray = this.entropy || window.crypto.getRandomValues(initArray)
+      const entropy = this.entropy ?? this.generateRandomEntropy()
       this.pointsGenerated = 0
-      this.$emit('updateEntropy', entropyArray)
       if (this.isGeneratingFromMouseMovements) {
         this.entropyGenerationProgress = 0
         window.addEventListener('mousemove', this.addEntropy)
@@ -319,6 +325,7 @@ export default {
         this.stopGeneratingEntropy()
       }
 
+      const entropy = this.entropy ?? this.generateRandomEntropy()
       const ts = new Date().getTime()
 
       if (!this.lastEntropyTick) {
@@ -328,7 +335,7 @@ export default {
       if (ts - this.lastEntropyTick > this.entropyLastTickDelay) {
         const x = event.clientX
         const y = event.clientY
-        if (x !== this.lastX && y !== this.lastY) {
+        if (x !== this.lastX || y !== this.lastY) {
           this.lastX = x
           this.lastY = y
           if (this.currentEntropyPoints.length >= this.pointsPerCollection) {
@@ -345,17 +352,12 @@ export default {
               container: this.$refs.entropyInputElement.$el
             })
             this.stopGeneratingEntropy()
-            const initArray = wordsToUint8Array(Number(this.words))
-            let entropyArray = window.crypto.getRandomValues(initArray)
 
-            // Loop over all the collected point arrays, generate hmac sig and use that as entropyArray for the next loop
-            for (let k = 0; k < this.collectedEntropyPoints.length; k++) {
-              entropyArray = await mouseMovementToHmacEntropy(this.collectedEntropyPoints[k], entropyArray)
-            }
+            const newEntropy = await mouseMovementToHmacEntropy(this.collectedEntropyPoints.flat(), entropy)
 
             loadingComponent.close()
             this.collectedEntropyPoints = []
-            this.$emit('updateEntropy', entropyArray)
+            this.$emit('updateEntropy', newEntropy)
           }
         }
       }
