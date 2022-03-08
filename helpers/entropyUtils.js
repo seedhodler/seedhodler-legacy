@@ -16,17 +16,17 @@ export const wordsToUint8Array = (words) => {
 export const mouseMovementEntropy = (x, y) => {
   // baseKey generation based on http://phrack.org/issues/59/15.html
   const perm = (x ^ y) & 0x10
-  const leastSignificantX = ((perm ? x : y) & 0x0f) | (((perm ? y : x) & 0x0f) << 4)
+  const leastSignificantX = ((perm ? x : y) & 0x0F) | (((perm ? y : x) & 0x0F) << 4)
   const time = window.performance.now()
-  let leastSignificantTime = (time & 0xff) | ((time >> 8) & 0xff)
+  let leastSignificantTime = (time & 0xFF) | ((time >> 8) & 0xFF)
   // use full precision (65 MHz) of timer (might not be available)
   for (let i = 8; i <= 16; i += 8) {
-    leastSignificantTime ^= (1 << i) * time & 0xff
+    leastSignificantTime ^= (1 << i) * time & 0xFF
   }
   return leastSignificantX ^ leastSignificantTime
 }
 
-export const mouseMovementToHmacEntropy = async (mouseMovementEntropy, previousHmacEntropy) => {
+export const mouseMovementToHmacEntropy = (mouseMovementEntropy, previousHmacEntropy) => {
   if (mouseMovementEntropy.length < 16) {
     // not enough mouse entropy
     console.log(mouseMovementEntropy)
@@ -34,7 +34,7 @@ export const mouseMovementToHmacEntropy = async (mouseMovementEntropy, previousH
   }
 
   // support up to 256 bits of entropy
-  return Promise.resolve().then(() => new Promise( (resolve, reject) => {
+  return Promise.resolve().then(() => new Promise((resolve, reject) => {
     const len = previousHmacEntropy.length
     const key = new Uint8Array(previousHmacEntropy)
     const salt = new Uint8Array(mouseMovementEntropy)
@@ -42,8 +42,7 @@ export const mouseMovementToHmacEntropy = async (mouseMovementEntropy, previousH
     const callback = (err, derivedKey) => {
       if (err) {
         return reject(err)
-      }
-      else {
+      } else {
         return resolve(derivedKey)
       }
     }

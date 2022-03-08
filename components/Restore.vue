@@ -4,7 +4,7 @@
       <b-input v-model="recoveredSecret" type="textarea" expanded readonly />
     </b-field>
     <b-field :type="recoveredSecretType" label="Recovered Secret">
-      <b-input v-model="recoveredEntropy.toString('hex')" type="textarea" expanded readonly />
+      <b-input v-model="recoveredEntropyString" type="textarea" expanded readonly />
     </b-field>
     <b-field v-if="showAddNewShare" :type="validNewMnemonic ? 'is-success' : 'is-danger'" label="Add share">
       <b-input
@@ -63,6 +63,7 @@ export default {
       passphrase: '',
       showAddNewShare: true,
       recoveredEntropy: Buffer.alloc(0),
+      recoveredEntropyString: '',
       recoveredSecret: 'Add shares to recover secret',
       recoveredSecretType: 'is-info'
     }
@@ -106,11 +107,13 @@ export default {
         const sanitizedShares = this.shares.map(share => share.trim())
         const recoveredEntropy = recoverSecret(sanitizedShares, this.passphrase)
         this.recoveredEntropy = Buffer.from(recoveredEntropy)
+        this.recoveredEntropyString = recoveredEntropy.toString('hex')
         this.recoveredSecret = entropyToMnemonic(new Uint8Array(recoveredEntropy))
         this.recoveredSecretType = 'is-success'
         this.showAddNewShare = false
       } catch (e) {
         this.recoveredEntropy = Buffer.alloc(0)
+        this.recoveredEntropyString = ''
         if (e.message.startsWith('Wrong number of mnemonics')) {
           this.recoveredSecret = `Please continue adding shares from the group starting with "${shareGroupName(this.shares[0])}" to restore the recovery phrase`
           this.recoveredSecretType = 'is-info'

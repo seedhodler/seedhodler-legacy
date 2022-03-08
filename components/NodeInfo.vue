@@ -199,37 +199,37 @@ export default {
           wifPrefix: 0x80,
           bip44: {
             addressPrefix: new Uint8Array([0x00]),
-            networkPrivate: 0x0488ade4,
-            networkPublic: 0x0488b21e
+            networkPrivate: 0x0488ADE4,
+            networkPublic: 0x0488B21E
           },
           bip49: {
             addressPrefix: new Uint8Array([0x05]),
-            networkPrivate: 0x049d7878,
-            networkPublic: 0x049d7cb2
+            networkPrivate: 0x049D7878,
+            networkPublic: 0x049D7CB2
           },
           bip84: {
             addressPrefix: 'bc',
-            networkPrivate: 0x04b2430c,
-            networkPublic: 0x04b24746
+            networkPrivate: 0x04B2430C,
+            networkPublic: 0x04B24746
           }
         },
         btcTest: {
           coin: '1\'',
-          wifPrefix: 0xef,
+          wifPrefix: 0xEF,
           bip44: {
-            addressPrefix: new Uint8Array([0x6f]),
+            addressPrefix: new Uint8Array([0x6F]),
             networkPrivate: 0x04358394,
-            networkPublic: 0x043587cf
+            networkPublic: 0x043587CF
           },
           bip49: {
-            addressPrefix: new Uint8Array([0xc4]),
-            networkPrivate: 0x044a4e28,
-            networkPublic: 0x044a5262
+            addressPrefix: new Uint8Array([0xC4]),
+            networkPrivate: 0x044A4E28,
+            networkPublic: 0x044A5262
           },
           bip84: {
             addressPrefix: 'tb',
-            networkPrivate: 0x045f18bc,
-            networkPublic: 0x045f1cf6
+            networkPrivate: 0x045F18BC,
+            networkPublic: 0x045F1CF6
           }
         }
       },
@@ -244,19 +244,18 @@ export default {
       // returns the public key node (neutered / can't sign)
       return this.bip32node.neutered()
     },
-    accountPath() {
+    accountPath () {
       const info = this.info[this.coin]
       const purpose = this.info[this.derivationStandard + '_purpose']
       return ('m/' + purpose + '/' + info.coin + '/' + this.account + '\'')
     },
-    accountNode() {
+    accountNode () {
       return this.bip32node.derivePath(this.accountPath)
     },
-    derivedPath() {
-     if (this.derivationStandard != 'custom') {
-        return (this.accountPath + (this.internal ? '/1' : '/0'))
-      }
-      else if (this.validDerivationPath) {
+    derivedPath () {
+      if (this.derivationStandard !== "custom") {
+        return (this.accountPath + (this.internal ? "/1" : "/0"))
+      } else if (this.validDerivationPath) {
         return this.derivationPath
       }
 
@@ -264,13 +263,13 @@ export default {
     },
     derivedNode () {
       const path = this.derivedPath
-      if (path != null)
+      if (path != null) {
         return this.bip32node.derivePath(path)
-
+      }
       return null
     },
     network () {
-      if (this.derivationStandard != 'custom') {
+      if (this.derivationStandard !== "custom") {
         const info = this.info[this.coin]
         const params = info[this.derivationStandard]
         return {
@@ -309,10 +308,9 @@ export default {
     },
     address (index) {
       const pubKey = this.addressNode(index).publicKey
-      if (this.derivationStandard === 'bip49') {
+      if (this.derivationStandard === "bip49") {
         return p2sh(pubKey, this.info[this.coin].bip49.addressPrefix)
-      }
-      else if (this.derivationStandard === 'bip84') {
+      } else if (this.derivationStandard === "bip84") {
         return p2wpkh(pubKey, this.info[this.coin].bip84.addressPrefix)
       }
       return p2pkh(pubKey, this.info[this.coin].bip44.addressPrefix)

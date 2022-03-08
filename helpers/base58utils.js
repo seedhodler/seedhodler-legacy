@@ -25,7 +25,7 @@ export const p2pkh = (pubkey, prefix) => {
 
 export const p2sh = (pubkey, prefix) => {
   const pubkeyHash = bitcoin.crypto.hash160(pubkey)
-  const script = Buffer.alloc(22);
+  const script = Buffer.alloc(22)
   script.writeUInt8(0x00, 0)
   script.writeUInt8(0x14, 1)
   pubkeyHash.copy(script, 2)
@@ -34,7 +34,7 @@ export const p2sh = (pubkey, prefix) => {
 }
 
 export const p2wpkh = (pubkey, prefix) => {
-  const network = {bech32: prefix}
-  const {address} = bitcoin.payments.p2wpkh({pubkey: pubkey, network: network})
-  return address
+  const network = { bech32: prefix }
+  const p2wpkh = bitcoin.payments.p2wpkh({ pubkey, network })
+  return p2wpkh.address
 }

@@ -297,10 +297,11 @@ export default {
       }
     },
     seed () {
-      if (!this.validMnemonic)
+      if (!this.validMnemonic) {
         return Buffer.alloc(16)
+      }
       if (this.slip39) {
-        return new Buffer(mnemonicToEntropy(this.mnemonic), 'hex')
+        return Buffer.from(mnemonicToEntropy(this.mnemonic), 'hex')
       }
       return mnemonicToSeed(this.mnemonic)
     }

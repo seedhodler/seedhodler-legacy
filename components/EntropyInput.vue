@@ -228,7 +228,7 @@ export default {
         return binaryRep
       }
     },
-    entropyAsHexString() {
+    entropyAsHexString () {
       return this.entropy === null ? '' : '0x' + Buffer.from(this.entropy.buffer).toString('hex')
     },
     formattedInputAsBinary () {
@@ -286,7 +286,6 @@ export default {
     },
     generateEntropyWithMouseMovement (event) {
       this.isGeneratingFromMouseMovements = !this.isGeneratingFromMouseMovements
-      const entropy = this.entropy ?? this.generateRandomEntropy()
       this.pointsGenerated = 0
       if (this.isGeneratingFromMouseMovements) {
         this.entropyGenerationProgress = 0
