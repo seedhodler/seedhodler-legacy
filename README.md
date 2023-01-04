@@ -41,7 +41,7 @@ The tool supports:
 
 ## Online Site (GH-PAGES) 
 
-- [seedhodler online](https://seedhodler.github.io/seedhodler/)
+- ~~[seedhodler online](https://seedhodler.github.io/seedhodler/)~~ - There is currently no online site for the beta version. Please use docker instead.
 
 ## Build Static Site Setup
 
