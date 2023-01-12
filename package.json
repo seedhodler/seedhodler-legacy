@@ -1,5 +1,5 @@
 {
-  "name": "seedhodler-beta",
+  "name": "seedhodler-legacy",
   "version": "1.0.0",
   "description": "Shamir Secret Sharing built for BIP39 Mnemonics implementing SLIP39",
   "author": "seedhodler",
