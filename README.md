@@ -1,3 +1,5 @@
+> **Dieses Repository ist archiviert.** Es ist die erste Fassung von Seedhodler (2023) und wird nicht mehr gepflegt. Das aktive Projekt liegt unter **[seedhodler/seedhodler](https://github.com/seedhodler/seedhodler)** und läuft auf [seedhodler.io](https://seedhodler.io/).
+
 
 # Seedhodler: SLIP39 Secret Sharing
 
